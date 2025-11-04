@@ -20,7 +20,7 @@ from knowledge.vector_store import vectorstore
 
 
 class RagPipeline:
-    """ RAG: 文档入库 + 检索增强问答"""
+    """RAG: 文档入库 + 检索增强问答"""
 
     def __init__(self):
         cfg = conf().get("rag", {})
@@ -28,7 +28,7 @@ class RagPipeline:
         self.top_k = cfg.get("top_k", 5)
 
     def index_file(self, file_path: str, namespace: Optional[str] = None) -> int:
-        """ 索引构建 """
+        """索引构建"""
         ns = namespace or self.default_namespace
         docs = load_documents(file_path)
         splitter = get_text_splitter()

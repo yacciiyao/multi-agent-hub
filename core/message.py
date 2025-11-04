@@ -14,13 +14,7 @@ from typing import Dict, Any
 
 @dataclass
 class Message:
-    """
-    单条消息的标准结构
-    - 所有时间戳为 int（秒）
-    - role: "user" | "assistant" | "system"
-    - mode: "chat" | "knowledge" | "agent"
-    - source: "web" | "ai" | "api" | "wechat" | "dingtalk" 等
-    """
+    """单条消息的标准结构"""
 
     role: str
     content: str

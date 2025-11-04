@@ -8,6 +8,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
+from starlette.responses import StreamingResponse
 
 from core.bridge_manager import bridge
 from core.dialogue_service import dialog_service
@@ -43,7 +44,8 @@ class RenameRequest(BaseModel):
 
 @router.post("/start")
 async def start(request: NewSessionRequest):
-    """ 创建新会话 """
+    """创建新会话"""
+
     model_name = request.model_name or "gpt-3.5-turbo"
 
     session_id = dialog_service.new_session(
@@ -61,26 +63,62 @@ async def start(request: NewSessionRequest):
         "error": None,
     }
 
+
 @router.post("/")
 async def chat(request: ChatRequest):
-    """ 标准聊天接口 """
+    """标准聊天接口"""
+
     user_id = request.user_id
     use_kg = request.use_kg or False
     session_id = request.session_id or dialog_service.new_session(user_id=user_id, use_kg=use_kg)
 
-    reply = bridge.handle_message(query=request.query,
-                                  session_id=session_id,
-                                  user_id=user_id,
-                                  use_kg=request.use_kg,
-                                  source=request.source)
+    reply = await bridge.handle_message(query=request.query, session_id=session_id, user_id=user_id,
+                                        use_kg=request.use_kg, source=request.source)
 
-    # return {"ok": True, "data": reply.model_dump(), "error": None}
+    return {"ok": True, "data": reply.model_dump(), "error": None}
 
-    return success(reply)
+
+# 片段：/api/chat/stream
+@router.post("/stream")
+async def chat_stream(request: ChatRequest):
+    user_id = request.user_id
+    session_id = request.session_id or dialog_service.new_session(user_id=user_id, use_kg=request.use_kg)
+
+    reply = await bridge.handle_message(
+        query=request.query,
+        session_id=session_id,
+        user_id=user_id,
+        use_kg=request.use_kg,
+        source=request.source,
+        stream=True,
+    )
+
+    if not getattr(reply, "stream", None):
+        return {"ok": True, "data": reply.model_dump(), "error": None}
+
+    async def event_stream():
+        try:
+            async for chunk in reply.stream:
+                yield f"data: {chunk}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as e:
+            logger.error(f"[chat_stream] 流式输出异常: {e}")
+            yield f"data: [ERROR] {str(e)}\n\n"
+            yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
+
 
 @router.get("/history")
 async def get_chat_history(user_id: int = Query(...), session_id: str = Query(...)):
-    """ 获取指定用户的会话历史记录 """
+    """获取指定用户的会话历史记录"""
 
     messages = dialog_service.get_messages(user_id=user_id, session_id=session_id)
 
@@ -89,7 +127,7 @@ async def get_chat_history(user_id: int = Query(...), session_id: str = Query(..
 
 @router.get("/sessions")
 async def list_sessions(user_id: int = Query(..., description="用户ID")):
-    """ 获取用户所有会话 """
+    """获取用户所有会话"""
 
     sessions = dialog_service.list_sessions(user_id=user_id)
 
@@ -106,5 +144,6 @@ async def clear_session(request: ClearRequest):
 @router.post("/clear_all")
 async def clear_all_sessions(user_id: int = Query(...)):
     """清空用户的全部会话"""
+
     dialog_service.clear_all_sessions(user_id)
     return {"ok": True, "data": {"user_id": user_id}, "error": None}

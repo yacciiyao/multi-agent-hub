@@ -4,19 +4,23 @@
 @Date: 2025-10-29 14:52
 @Desc:
 """
-from abc import abstractmethod, ABC
-from typing import List, Dict
+from typing import Dict, List, Dict as TDict, AsyncIterator, Union
 
 
-class BaseBot(ABC):
-    """ 所有模型的抽象基类 """
+class BaseBot:
+    """所有模型的统一抽象接口"""
 
-    @abstractmethod
-    def reply(self, query: str) -> str:
-        """ 兼容单轮对话 """
-        ...
+    family: str = "unknown"
+    models_info: Dict[str, dict] = {}
 
-    @abstractmethod
-    def reply_with_context(self, messages: List[Dict[str, str]]) -> str:
-        """ 带上下文的对话 """
-        ...
+    async def chat(
+            self,
+            messages: List[TDict[str, str]],
+            stream: bool = False
+    ) -> Union[str, AsyncIterator[str]]:
+        """
+        子类必须实现：
+        - 非流式：返回完整字符串
+        - 流式：返回 AsyncIterator[str]（可 async for）
+        """
+        raise NotImplementedError

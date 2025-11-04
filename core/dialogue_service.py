@@ -13,7 +13,7 @@ from infrastructure.logger import logger
 
 
 class DialogueService:
-    """ 管理多轮对话的上下文缓存 """
+    """管理多轮对话的上下文缓存"""
 
     def __init__(self):
         self.user_sessions: Dict[int, Dict[str, Session]] = {}
@@ -31,7 +31,8 @@ class DialogueService:
         return self.user_sessions[user_id][session_id]
 
     def new_session(self, user_id: int, model_name: str = "gpt-3.5-turbo", use_kg: bool = False) -> str:
-        """ 创建新会话 """
+        """创建新会话"""
+
         self._ensure_user(user_id)
 
         session = Session(model_name=model_name,use_kg=use_kg)

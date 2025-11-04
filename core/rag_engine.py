@@ -11,7 +11,7 @@ from knowledge import rag_pipeline
 
 
 class RAGEngine:
-    """ RAG 统一封装层 """
+    """RAG 统一封装层"""
 
     def __init__(self):
         self.pipeline = rag_pipeline.rag

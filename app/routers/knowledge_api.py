@@ -28,7 +28,7 @@ class KnowledgeQuery(BaseModel):
 
 @router.post("/upload")
 async def upload_and_index(file: UploadFile = File(...), namespace: str = Form(None), admin_token: str = Form(...)):
-    """ 仅管理员可用, 上传文件并写入指定 namespace 的向量库 """
+    """仅管理员可用, 上传文件并写入指定 namespace 的向量库"""
 
     from infrastructure.config_manager import conf
     admin_key = conf().get("rag").get("admin_upload_token", None)
@@ -60,7 +60,7 @@ async def upload_and_index(file: UploadFile = File(...), namespace: str = Form(N
 
 @router.post("/query")
 async def query_knowledge(query: KnowledgeQuery):
-    """ 查询知识库 """
+    """查询知识库"""
 
     if not query.question:
         return {"ok": False, "error": "缺少 question 参数"}

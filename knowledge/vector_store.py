@@ -15,7 +15,7 @@ from infrastructure.logger import logger
 
 
 class VectorStoreManager:
-    """ 按 namespace 管理多个 FAISS 向量库 """
+    """按 namespace 管理多个 FAISS 向量库"""
 
     def __init__(self):
         rag_cfg = conf().get("rag", {})

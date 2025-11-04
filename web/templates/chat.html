@@ -1,9 +1,20 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" translate="no" data-no-translate>
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <meta name="google" content="notranslate"/>
     <title>Nexa-Hub · Chat</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+    <script>
+        marked.setOptions({
+            highlight: (code, lang) => {
+                return hljs.highlightAuto(code, [lang]).value;
+            }
+        });
+    </script>
+
     <style>
         html, body {
             height: 100%;
@@ -261,31 +272,33 @@
         }
     </style>
 </head>
-<body>
-<div class="layout">
+<body translate="no" data-no-translate>
+<div class="layout" translate="no" data-no-translate>
     <div class="sidebar">
         <h2>💬 会话列表</h2>
         <button class="new-session-btn" onclick="startNewChat()">➕ 新建会话</button>
-        <div id="session-list" class="session-list"></div>
-        <button id="clear-all-btn" class="clear-all-btn" onclick="clearAllSessions()">🗑️ 清空所有会话</button>
+        <div id="nx-session-list" class="session-list"></div>
+        <button id="nx-clear-all-btn" class="clear-all-btn" onclick="clearAllSessions()">🗑️ 清空所有会话</button>
     </div>
 
     <div class="main">
-        <div class="app">
+        <div class="app" translate="no">
             <div class="header">Nexa-Hub</div>
             <div class="toolbar">
                 <div class="toggle-group">
-                    <span>模型：</span><select id="model"></select>
+                    <span>模型：</span>
+                    <label for="nx-model" aria-hidden="true"></label>
+                    <select id="nx-model"></select>
                 </div>
                 <div class="toggle-group">
-                    <input id="kg-switch" type="checkbox" onchange="toggleKnowledge()"/>
-                    <label for="kg-switch">启用知识库</label>
+                    <input id="nx-kg-switch" type="checkbox" onchange="toggleKnowledge()"/>
+                    <label for="nx-kg-switch">启用知识库</label>
                 </div>
             </div>
-            <div id="chat" class="chat"></div>
+            <div id="nx-chat" class="chat"></div>
             <div class="composer">
-                <input id="input" type="text" placeholder="请输入问题…"/>
-                <button id="send">发送</button>
+                <input id="nx-input" type="text" placeholder="请输入问题…" autocomplete="off"/>
+                <button id="nx-send">发送</button>
             </div>
         </div>
     </div>
@@ -298,53 +311,91 @@
     let useKG = false;
     let hasMessage = false;
 
-    const chatEl = document.getElementById("chat")
-    const input = document.getElementById("input")
-    const sendBtn = document.getElementById("send");
-    const modelEl = document.getElementById("model");
-    const kgSwitch = document.getElementById("kg-switch");
-    const sessionListEl = document.getElementById("session-list");
+    const chatEl = document.getElementById("nx-chat");
+    const input = document.getElementById("nx-input");
+    const sendBtn = document.getElementById("nx-send");
+    const modelEl = document.getElementById("nx-model");
+    const kgSwitch = document.getElementById("nx-kg-switch");
+    const sessionListEl = document.getElementById("nx-session-list");
+    const clearAllBtn = document.getElementById("nx-clear-all-btn");
 
     async function loadModels() {
         const res = await fetch(`${API_BASE}/api/model/`);
         const payload = await res.json();
         const models = payload.data?.models || [];
+
+        modelEl.innerHTML = "";
+
         models.forEach(m => {
             const opt = document.createElement("option");
-            opt.value = m.id || m.name;
+            opt.value = m.id;
             opt.textContent = `${m.family ? m.family + ": " : ""}${m.name}`;
             modelEl.append(opt);
         });
     }
 
-    function addMsg({side, text, sources=[]}){
+    function addMsg({side, text, sources = []}) {
         const row = document.createElement("div");
         row.className = `msg-row ${side}`;
 
         const avatar = document.createElement("img");
         avatar.className = "avatar";
-        avatar.src = side === "left" ? `${API_BASE}/static/images/avatar/ai.png` : `${API_BASE}/static/images/avatar/user.png`;
+        avatar.src = side === "left"
+            ? `${API_BASE}/static/images/avatar/ai.png`
+            : `${API_BASE}/static/images/avatar/user.png`;
 
-        const bubble = document.createElement("div")
-        bubble.className = "bubble"
-        bubble.textContent = text
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
 
-        if (side === "left" && sources && sources.length > 0) {
+        const renderToHTML = (raw) => {
+            if (window.marked) {
+                // 用 marked 渲染 Markdown
+                const html = window.marked.parse(String(raw ?? ""));
+                return html;
+            }
+            // 回退：纯文本转义 + \n => <br>
+            const escapeHTML = (s) =>
+                String(s ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            return escapeHTML(raw).replace(/\n/g, "<br>");
+        };
+
+        // 写入内容
+        bubble.innerHTML = renderToHTML(text);
+
+        // 给代码块加高亮
+        if (window.hljs) {
+            bubble.querySelectorAll("pre code").forEach((block) => {
+                try {
+                    window.hljs.highlightElement(block);
+                } catch (_) {
+                }
+            });
+        }
+
+        // 附带引用来源（仅左侧 AI 气泡）
+        if (side === "left" && Array.isArray(sources) && sources.length > 0) {
             const srcBlock = renderSources(sources);
             if (srcBlock) bubble.appendChild(srcBlock);
         }
 
         if (side === "left") row.append(avatar, bubble);
         else row.append(bubble, avatar);
+
         chatEl.append(row);
         chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    function addSystemBanner(text){
-        const div = document.createElement("div")
-        div.className = "system-banner"
-        div.textContent = text
-        chatEl.append(div)
+
+    function addSystemBanner(text) {
+        const div = document.createElement("div");
+        div.className = "system-banner";
+        div.textContent = text;
+        chatEl.append(div);
         chatEl.scrollTop = chatEl.scrollHeight;
     }
 
@@ -371,21 +422,21 @@
 
         chatEl.innerHTML = "";
 
-        addSystemBanner(`👋 新会话已开启 (模型: ${modelEl.value}})`);
-
+        addSystemBanner(`👋 新会话已开启 (模型: ${modelEl.value})`);
+        await loadSessions();
         highlightActiveSession(sessionId);
     }
 
-    async function send(){
+    async function send() {
         const text = input.value.trim();
-        if(!text) return
+        if (!text) return;
 
-        addMsg({"side": "right", text})
-        input.value = ""
+        addMsg({side: "right", text});
+        input.value = "";
         sendBtn.disabled = true;
 
         try {
-            const res = await fetch(`${API_BASE}/api/chat/`, {
+            const res = await fetch(`${API_BASE}/api/chat/stream`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
@@ -393,33 +444,101 @@
                     user_id: userId,
                     session_id: sessionId,
                     use_kg: useKG,
-                    source: "web"
-                })
+                    source: "web",
+                }),
             });
 
-            const payload = await res.json()
-            if (!payload.ok) {
-                addMsg({side: "left", text: `❌ 出错了: ${payload.error || "未知错误"}, 请联系管理员`});
-            } else {
-                const data = payload.data
-                const aiText = data.text || "[无响应]"
-                addMsg({side: "left", text: aiText, sources: data.sources || []})
-                hasMessage = true
+            const contentType = res.headers.get("content-type") || "";
+            const isStream = contentType.includes("text/event-stream") && res.body && res.body.getReader;
 
-                await loadSessions()
-                highlightActiveSession()
+            if (isStream) {
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+                let aiMsgEl = null;
+
+                function ensureAiBubble() {
+                    if (!aiMsgEl) {
+                        aiMsgEl = document.createElement("div");
+                        aiMsgEl.className = "msg-row left";
+
+                        const avatar = document.createElement("img");
+                        avatar.className = "avatar";
+                        avatar.src = `${API_BASE}/static/images/avatar/ai.png`;
+
+                        const bubble = document.createElement("div");
+                        bubble.className = "bubble";
+
+                        aiMsgEl.append(avatar, bubble);
+                        chatEl.append(aiMsgEl);
+                        chatEl.scrollTop = chatEl.scrollHeight;
+                    }
+                    return aiMsgEl.querySelector(".bubble");
+                }
+
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, {stream: true});
+                    const chunks = buffer.split("\n\n");
+                    buffer = chunks.pop() || "";
+
+                    for (const line of chunks) {
+                        if (!line.startsWith("data: ")) continue;
+                        const chunk = line.slice(6).trim();
+
+                        if (chunk === "[DONE]") {
+                            buffer = "";
+                            break;
+                        }
+                        if (chunk.startsWith("[ERROR]")) {
+                            const msg = chunk.replace("[ERROR]", "").trim();
+                            addMsg({side: "left", text: `⚠️ 服务异常：${msg}`});
+                            buffer = "";
+                            break;
+                        }
+
+                        const bubble = ensureAiBubble();
+                        bubble.textContent += chunk;
+                        chatEl.scrollTop = chatEl.scrollHeight;
+                    }
+                }
+
+                hasMessage = true;
+                setTimeout(async () => {
+                    await loadSessions();
+                    highlightActiveSession(sessionId);
+                }, 200);
+
+            } else {
+                const payload = await res.json();
+                if (!payload.ok) {
+                    addMsg({side: "left", text: `❌ 出错了: ${payload.error || "未知错误"}, 请联系管理员`});
+                } else {
+                    const data = payload.data;
+                    const aiText = data.text || "[无响应]";
+                    addMsg({side: "left", text: aiText, sources: data.sources || []});
+                    hasMessage = true;
+
+                    await loadSessions();
+                    highlightActiveSession(sessionId);
+                }
             }
+
         } catch (err) {
+            console.error(err);
             addMsg({side: "left", text: "⚠️ 请求失败，请联系管理员"});
         } finally {
             sendBtn.disabled = false;
         }
     }
 
-    async function loadSessions(){
+    async function loadSessions() {
         const res = await fetch(`${API_BASE}/api/chat/sessions?user_id=${userId}`);
         const payload = await res.json();
         const sessions = payload.data?.sessions || [];
+
         sessionListEl.innerHTML = "";
 
         sessions.forEach(sess => {
@@ -442,11 +561,18 @@
                     body: JSON.stringify({user_id: userId, session_id: sess.session_id})
                 });
                 await loadSessions();
+                // 删除当前会话时，把当前 sessionId 置空，避免高亮错乱
+                if (sessionId === sess.session_id) {
+                    sessionId = null;
+                    chatEl.innerHTML = "";
+                }
             };
 
             div.append(name, del);
             sessionListEl.append(div);
         });
+
+        clearAllBtn.style.display = sessions.length > 0 ? "block" : "none";
     }
 
     function highlightActiveSession(id) {
@@ -466,13 +592,19 @@
         highlightActiveSession(id);
     }
 
+    async function clearAllSessions() {
+        await fetch(`${API_BASE}/api/chat/clear_all?user_id=${userId}`, {method: "POST"});
+        await loadSessions();
+        chatEl.innerHTML = "";
+        sessionId = null;
+        addSystemBanner("🧹 所有会话已清空");
+        highlightActiveSession(null);
+    }
+
     function toggleKnowledge() {
         useKG = kgSwitch.checked;
-        if (useKG){
-            addSystemBanner("🧠 已开启知识库查询功能");
-        } else {
-            addSystemBanner("💬 已关闭知识库查询功能");
-        }
+        if (useKG) addSystemBanner("🧠 已开启知识库查询功能");
+        else addSystemBanner("💬 已关闭知识库查询功能");
     }
 
     function renderSources(sources) {
@@ -502,6 +634,7 @@
         return container;
     }
 
+    // 事件绑定
     sendBtn.onclick = send;
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") send();
@@ -510,22 +643,27 @@
     modelEl.addEventListener("change", async (e) => {
         const newModel = e.target.value;
 
-        if (newModel === modelEl.value) return;
-
-        if (hasMessage){
+        // 如果已有消息，建议新建会话
+        if (hasMessage) {
             const confirmed = confirm(`当前会话使用模型「${modelEl.value}」，\n是否新建会话以使用「${newModel}」？`);
             if (confirmed) {
-                modelEl.value = newModel;
                 await startNewChat();
+            } else {
+                // 回退选择
+                e.target.value = modelEl.value;
             }
         } else {
+            // 仅更新下拉值，真正创建时取当前值
             modelEl.value = newModel;
         }
     });
 
+    // 启动
     window.onload = async () => {
         await loadModels();
         await loadSessions();
         addSystemBanner("👋 你好，我是你的 AI 助手，现在开始聊天吧～");
     };
 </script>
+</body>
+</html>

@@ -13,7 +13,7 @@ from infrastructure.logger import logger
 
 
 def load_documents(file_path: str) -> List:
-    """ 按文件类型加载文本为 Langchain Documents"""
+    """按文件类型加载文本为 Langchain Documents"""
 
     path = Path(file_path)
     suffix = path.suffix.lower()
