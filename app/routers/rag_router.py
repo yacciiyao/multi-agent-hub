@@ -93,7 +93,7 @@ async def list_docs(
 @router.delete("/{doc_id}", summary="删除 RAG 文档（逻辑删除，后台使用）")
 async def delete_doc(
         doc_id: str = Path(..., description="文档ID"),
-        user_id: int = Query(..., description="操作者用户ID"),
+        user_id: int = Query(..., description="操作者ID"),
 ):
     rag_service = get_rag_service()
     try:
@@ -107,7 +107,7 @@ async def delete_doc(
 async def search_rag(body: SearchRagRequest):
     rag_service = get_rag_service()
     try:
-        hits = await rag_service.semantic_search(user_id=body.user_id, query=body.query, top_k=body.top_k)
+        hits = await rag_service.semantic_search(query=body.query, top_k=body.top_k)
         return success(data=hits)
     except Exception as e:
         return failure(message=str(e))

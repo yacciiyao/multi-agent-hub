@@ -1,3 +1,4 @@
+torch
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.2
 aiomysql==0.3.2

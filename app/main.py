@@ -15,12 +15,14 @@ from starlette.staticfiles import StaticFiles
 from app.routers import bots_router, sessions_router, messages_router, rag_router
 from infrastructure.config_manager import config
 from infrastructure.storage_manager import storage_manager
+from infrastructure.vector_store_manager import vector_store_manager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     config.load()
     await storage_manager.init()
+    await vector_store_manager.init()
 
     if not hasattr(app, "state"):
         app.state = State()
