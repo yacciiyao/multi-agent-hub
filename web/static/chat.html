@@ -22,7 +22,8 @@
         }
 
         html, body {
-            height: 100%
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
@@ -44,8 +45,7 @@
             background: var(--panel);
             border-right: 1px solid var(--border);
             display: flex;
-            flex-direction: column;
-            position: relative;
+            flex-direction: column
         }
 
         .main {
@@ -53,8 +53,9 @@
             display: flex;
             flex-direction: column;
             background: var(--panel);
+            min-height: 0;
+            overflow: hidden;
         }
-
         .brand {
             display: flex;
             align-items: center;
@@ -78,7 +79,8 @@
         .side-tools {
             display: flex;
             gap: 8px;
-            padding: 12px 12px 8px
+            padding: 12px 12px 6px;
+            border-bottom: 1px solid var(--border);
         }
 
         .btn {
@@ -113,7 +115,7 @@
         .session-list {
             overflow: auto;
             padding: 6px 8px 12px;
-            flex: 1 1 auto;
+            flex: 1;
         }
 
         .session-item {
@@ -123,9 +125,7 @@
             justify-content: space-between;
             gap: 8px;
             padding: 10px 12px;
-            border: 1px solid var(--border);
             background: #fff;
-            border-radius: 10px;
             margin: 8px 0;
             cursor: pointer
         }
@@ -139,6 +139,13 @@
             background: var(--green-50)
         }
 
+        .session-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
         .session-title {
             min-width: 0;
             white-space: nowrap;
@@ -146,6 +153,14 @@
             text-overflow: ellipsis;
             font-weight: 600;
             font-size: 13px
+        }
+
+        .session-meta {
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .session-actions {
@@ -181,78 +196,87 @@
 
         .sidebar-footer {
             border-top: 1px solid var(--border);
-            padding: 10px 10px 12px;
-            background: #fff;
-            flex: 0 0 auto;
+            padding: 8px 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .assistant-card {
+        .agent-panel {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 8px 8px 6px;
+        }
+
+        .agent-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            margin-bottom: 8px;
-            background: #f9fafb;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: var(--muted);
         }
 
-        .assistant-card.active {
-            border-color: var(--green);
-            background: var(--green-50);
+        .agent-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .assistant-avatar {
-            width: 32px;
-            height: 32px;
+        .agent-item {
+            padding: 6px 8px;
             border-radius: 8px;
-            overflow: hidden;
             border: 1px solid var(--border);
             background: #fff;
-            flex: 0 0 32px;
-        }
-
-        .assistant-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .assistant-meta {
-            min-width: 0;
-        }
-
-        .assistant-name {
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .assistant-desc {
             font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .agent-item span.agent-name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agent-item span.agent-desc {
+            font-size: 11px;
             color: var(--muted);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .user-card {
+        .agent-item.active {
+            border-color: #22c55e;
+            background: var(--green-50);
+            box-shadow: 0 0 0 1px rgba(34, 197, 94, .12);
+        }
+
+        .agent-item:hover {
+            background: var(--panel-2);
+        }
+
+        .user-panel {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
+            gap: 8px;
+            padding: 6px 8px;
             border-radius: 10px;
-            border: 1px solid var(--border);
             background: #fff;
+            border: 1px solid var(--border);
         }
 
         .user-avatar {
             width: 28px;
             height: 28px;
             border-radius: 999px;
+            background: #e5e7eb;
             overflow: hidden;
-            border: 1px solid var(--border);
-            background: #f9fafb;
-            flex: 0 0 28px;
+            flex-shrink: 0;
         }
 
         .user-avatar img {
@@ -261,79 +285,92 @@
             object-fit: cover;
         }
 
-        .user-meta {
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             min-width: 0;
         }
 
         .user-name {
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .user-email {
-            font-size: 12px;
+        .user-sub {
+            font-size: 11px;
             color: var(--muted);
         }
 
         .toolbar {
-            position: relative;
             display: flex;
             align-items: center;
             gap: 14px;
             margin: 12px 10%;
             padding: 10px 56px;
             border-bottom: 1px solid var(--border);
-            background: #fff;
+            background: #fff
         }
 
-        .toolbar-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .toolbar-right {
+        .toolbar .muted {
+            color: var(--muted);
+            font-size: 12px;
             margin-left: auto;
+        }
+
+        .agent-tag-current {
             font-size: 12px;
             color: var(--muted);
         }
 
-        .chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 20px 24px;
-            background: #f6f6f6;
-            margin: 0 10%;
+        .agent-tag-current strong {
+            color: #111827;
         }
 
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f6f6f6;
+            margin: 0 10%;
+            padding: 0 20px 24px;
+            min-height: 0;
+        }
         .chat-header {
             position: sticky;
             top: 0;
-            z-index: 5;
-            margin: 0 -20px 20px;
-            padding: 8px 0;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #EEEEEE;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-            color: var(--muted);
+            z-index: 1;
+            padding: 16px 0 10px;
+            text-align: center;
+            background: #f6f6f6;
         }
 
-        .chat-header .agent-name-top {
-            margin-left: 4px;
+        .chat-header .agent-title {
+            font-size: 17px;
             font-weight: 600;
-            color: var(--green);
         }
 
+        .chat-header .agent-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow: auto;
+            padding-top: 4px;
+            padding-bottom: 16px;
+        }
 
         .msg {
             display: flex;
             gap: 10px;
             margin: 12px 0;
-            align-items: flex-start;
+            align-items: flex-start
         }
 
         .msg .avatar {
@@ -343,13 +380,13 @@
             border: 1px solid var(--border);
             background: #fff;
             overflow: hidden;
-            flex: 0 0 40px;
+            flex: 0 0 40px
         }
 
         .msg .avatar img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover
         }
 
         .bubble {
@@ -360,40 +397,40 @@
             padding: 10px 12px;
             word-break: break-word;
             white-space: pre-wrap;
-            box-shadow: 0 1px 0 rgba(0, 0, 0, .02);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, .02)
         }
 
         .msg.user {
-            justify-content: flex-end;
+            justify-content: flex-end
         }
 
         .msg.user .avatar {
             order: 2;
-            margin-left: 8px;
+            margin-left: 8px
         }
 
         .msg.user .bubble {
             order: 1;
             background: var(--green-50);
-            border-color: #95EC69;
+            border-color: #95EC69
         }
 
         .msg.assistant {
-            justify-content: flex-start;
+            justify-content: flex-start
         }
 
         .msg.assistant .avatar {
-            margin-right: 8px;
+            margin-right: 8px
         }
 
         .msg.assistant .bubble {
             background: #fff;
-            border-color: var(--border);
+            border-color: var(--border)
         }
 
         .msg.system {
             justify-content: center;
-            margin: 16px 0;
+            margin: 16px 0
         }
 
         .msg.system .bubble {
@@ -404,7 +441,7 @@
             font-size: 12px;
             padding: 0;
             max-width: 640px;
-            text-align: center;
+            text-align: center
         }
 
         .bubble pre {
@@ -413,24 +450,75 @@
             background: #f8fafc;
             border: 1px solid var(--border);
             border-radius: 8px;
-            overflow: auto;
+            overflow: auto
+        }
+
+        .bottom-panel {
+            margin: 0 10%;
+            padding: 12px 20px 16px;
+            background: #f6f6f6;
+            border-top: 1px solid var(--border);
+        }
+
+        .shortcut-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .shortcut-pill {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 400px;
+            transition: background .12s, box-shadow .12s, transform .12s;
+        }
+
+        .shortcut-pill:hover {
+            background: #f9fafb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+        }
+
+        .shortcut-pill:active {
+            transform: translateY(1px);
+        }
+
+        .shortcut-pill-title {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .shortcut-pill-sub {
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .composer {
             position: relative;
             display: flex;
-            gap: 10px;
-            padding: 20px 0;
-            border-top: 1px solid var(--border);
-            background: #fff;
-            margin: 0 10%;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 0 20px;
+            background: #f6f6f6;
+            flex-shrink: 0;
         }
 
         .composer textarea {
             flex: 1;
             min-height: 92px;
             resize: vertical;
-            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 12px 56px 12px 12px;
             outline: none;
@@ -439,7 +527,7 @@
 
         .composer textarea:focus {
             border-color: #86efac;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, .15);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, .15)
         }
 
         #send {
@@ -457,26 +545,26 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 6px 14px rgba(16, 185, 129, .25);
-            transition: transform .12s, filter .12s, box-shadow .12s;
+            transition: transform .12s, filter .12s, box-shadow .12s
         }
 
         #send:hover {
             filter: brightness(.98);
-            box-shadow: 0 8px 18px rgba(16, 185, 129, .3);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, .3)
         }
 
         #send:active {
-            transform: translateY(1px);
+            transform: translateY(1px)
         }
 
         #send svg {
             width: 18px;
-            height: 18px;
+            height: 18px
         }
 
         .sources {
             margin-top: 8px;
-            padding: 0;
+            padding: 0
         }
 
         .sources-hd {
@@ -488,7 +576,7 @@
             border-radius: 8px;
             background: #fff;
             cursor: pointer;
-            user-select: none;
+            user-select: none
         }
 
         .sources-toggle {
@@ -497,12 +585,12 @@
             color: #047857;
             font-size: 13px;
             padding: 0;
-            cursor: pointer;
+            cursor: pointer
         }
 
         .sources-count {
             color: var(--muted);
-            font-size: 12px;
+            font-size: 12px
         }
 
         .sources-body {
@@ -510,28 +598,31 @@
             padding: 8px;
             background: #f8fafc;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 8px
         }
 
         .sources .source-item + .source-item {
-            margin-top: 6px;
+            margin-top: 6px
         }
 
-        .chat::-webkit-scrollbar,
-        .session-list::-webkit-scrollbar {
+        .chat-messages::-webkit-scrollbar,
+        .session-list::-webkit-scrollbar,
+        .agent-items::-webkit-scrollbar {
             width: 8px;
-            height: 8px;
+            height: 8px
         }
 
-        .chat::-webkit-scrollbar-thumb,
-        .session-list::-webkit-scrollbar-thumb {
+        .chat-messages::-webkit-scrollbar-thumb,
+        .session-list::-webkit-scrollbar-thumb,
+        .agent-items::-webkit-scrollbar-thumb {
             background: #e5e7eb;
-            border-radius: 8px;
+            border-radius: 8px
         }
 
-        .chat::-webkit-scrollbar-thumb:hover,
-        .session-list::-webkit-scrollbar-thumb:hover {
-            background: #d1d5db;
+        .chat-messages::-webkit-scrollbar-thumb:hover,
+        .session-list::-webkit-scrollbar-thumb:hover,
+        .agent-items::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db
         }
 
         .modal-mask {
@@ -541,7 +632,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
+            z-index: 9999
         }
 
         .modal {
@@ -550,18 +641,18 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, .12);
-            overflow: hidden;
+            overflow: hidden
         }
 
         .modal .hd {
             padding: 14px 16px;
             font-weight: 600;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border)
         }
 
         .modal .bd {
             padding: 16px;
-            color: #374151;
+            color: #374151
         }
 
         .modal .ft {
@@ -569,7 +660,7 @@
             display: flex;
             gap: 10px;
             justify-content: flex-end;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--border)
         }
     </style>
 </head>
@@ -592,29 +683,30 @@
             <img src="/static/images/logo.png" alt="logo"/>
             <h1>Multi-Agent Hub</h1>
         </div>
+
         <div class="side-tools">
             <button id="btn-new" class="btn btn-green">新建会话</button>
             <button id="btn-clear-all" class="btn btn-danger" style="display:none">清空全部</button>
         </div>
+
         <div id="session-list" class="session-list"></div>
 
         <div class="sidebar-footer">
-            <div class="assistant-card">
-                <div class="assistant-avatar">
-                    <img src="/static/images/ai.jpg" alt="助手"/>
+            <div class="agent-panel">
+                <div class="agent-header">
+                    <span>助手</span>
+                    <span style="font-size:11px;color:var(--muted)">为本地会话选择角色</span>
                 </div>
-                <div class="assistant-meta">
-                    <div class="assistant-name" id="assistant-name">默认助手</div>
-                    <div class="assistant-desc" id="assistant-desc">综合解答与指导</div>
-                </div>
+                <div id="agent-list" class="agent-items"></div>
             </div>
-            <div class="user-card">
+
+            <div class="user-panel">
                 <div class="user-avatar">
-                    <img src="/static/images/user.jpg" alt="用户"/>
+                    <img src="/static/images/user.jpg" alt="User"/>
                 </div>
-                <div class="user-meta">
-                    <div class="user-name">当前用户</div>
-                    <div class="user-email">user#1</div>
+                <div class="user-info">
+                    <div class="user-name">Demo User</div>
+                    <div class="user-sub">在线 · WEB</div>
                 </div>
             </div>
         </div>
@@ -622,34 +714,31 @@
 
     <main class="main">
         <div class="toolbar">
-            <div class="toolbar-left">
-                <label>模型:
-                    <select id="model-select"></select>
-                </label>
-                <label><input id="ck-stream" type="checkbox"/> 流式输出</label>
-                <label><input id="ck-rag" type="checkbox"/> 启用 RAG</label>
-            </div>
-            <div class="toolbar-right">
-                <span id="status">就绪</span>
-            </div>
+            <label>模型:
+                <select id="model-select"></select>
+            </label>
+            <label><input id="ck-stream" type="checkbox"/> 流式输出</label>
+            <label><input id="ck-rag" type="checkbox"/> 启用 RAG</label>
+            <span id="agent-current" class="agent-tag-current"></span>
+            <span id="status" class="small muted">就绪</span>
         </div>
 
         <div id="chat" class="chat">
-            <div class="chat-header">
-                <span id="agent-name-top" class="agent-name-top">默认助手</span>
-            </div>
+            <div id="chat-header" class="chat-header"></div>
+            <div id="chat-messages" class="chat-messages"></div>
         </div>
 
-        <div class="composer">
-            <textarea id="input" placeholder="输入消息, Shift+Enter 换行, Enter 发送"></textarea>
-            <button id="send" aria-label="发送">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M3.5 11.5L20 4l-7.5 16-2-7-7-1.5Z"
-                          stroke="white"
-                          stroke-width="1.8"
-                          stroke-linejoin="round"/>
-                </svg>
-            </button>
+        <div class="bottom-panel">
+            <div id="shortcut-bar" class="shortcut-bar"></div>
+            <div class="composer">
+                <textarea id="input" placeholder="输入消息, Shift+Enter 换行, Enter 发送"></textarea>
+                <button id="send" aria-label="发送">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M3.5 11.5L20 4l-7.5 16-2-7-7-1.5Z" stroke="white" stroke-width="1.8"
+                              stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </main>
 </div>
@@ -660,14 +749,6 @@
     const USER_ID = 1;
     const CHANNEL = "web";
 
-    const DEFAULT_AGENT_KEY = "default";
-    const AGENT_PRESETS = {
-        default: {
-            name: "默认助手",
-            desc: "综合解答与指导",
-        },
-    };
-
     let models = [];
     let sessions = [];
     let currentSessionId = null;
@@ -676,9 +757,10 @@
     let pendingBotName = null;
     let streamingReader = null;
 
-    // Agent 状态（当前公共版只有一个默认助手）
     let agents = [];
+    let agentsMap = {};
     let currentAgentKey = null;
+    let shortcutsHidden = false;
 
     /** --------------- 工具函数 --------------- */
     const $ = s => document.querySelector(s);
@@ -693,7 +775,8 @@
     }
 
     function scrollBottom() {
-        const c = $("#chat");
+        const c = $("#chat-messages");
+        if (!c) return;
         c.scrollTop = c.scrollHeight;
     }
 
@@ -720,7 +803,7 @@
     }
 
     function hasUserOrAssistant() {
-        const ns = [...document.querySelectorAll("#chat .msg")];
+        const ns = [...document.querySelectorAll("#chat-messages .msg")];
         return ns.some(n => n.classList.contains("user") || n.classList.contains("assistant"));
     }
 
@@ -730,20 +813,31 @@
         return text.replace(re, "").trim();
     }
 
-    // 确保聊天容器里始终有顶部助手条
-    function ensureChatHeader() {
-        const chat = document.getElementById("chat");
-        if (!chat) return;
-        if (chat.querySelector(".chat-header")) return;
+    function getAgentNameByKey(key) {
+        if (!key) return "";
+        const a = agentsMap[key];
+        return a ? a.name : key;
+    }
 
-        const header = document.createElement("div");
-        header.className = "chat-header";
-        const span = document.createElement("span");
-        span.id = "agent-name-top";
-        span.className = "agent-name-top";
-        span.textContent = AGENT_PRESETS[DEFAULT_AGENT_KEY].name;
-        header.appendChild(span);
-        chat.insertBefore(header, chat.firstChild || null);
+    function updateAgentCurrentLabel() {
+        const span = $("#agent-current");
+        const header = $("#chat-header");
+        const agentObj = agentsMap[currentAgentKey];
+        const name = agentObj?.name || "默认助手";
+        const desc = agentObj?.description || "";
+
+        if (span) {
+            span.innerHTML = agentObj
+                ? `当前助手：<strong>${name}</strong>`
+                : "";
+        }
+
+        if (header) {
+            header.innerHTML = "";
+            const title = ce("div", "agent-title");
+            title.textContent = name;
+            header.appendChild(title);
+        }
     }
 
     /** --------------- DOM 生成 --------------- */
@@ -831,7 +925,7 @@
             const open = box.dataset.open === "1";
             box.dataset.open = open ? "0" : "1";
             bd.style.display = open ? "none" : "block";
-            btn.textContent = open ? "展开数据来源" : "收起数据来源";
+            btn.textContent = open ? "收起数据来源" : "展开数据来源";
         });
 
         container.appendChild(box);
@@ -845,6 +939,13 @@
         return j.data?.bots || [];
     }
 
+    async function apiListAgents() {
+        const r = await fetch(`${API}/agents/list`, {method: "POST"});
+        const j = await r.json();
+        if (j.code !== 0) throw new Error(j.message || "agents list failed");
+        return j.data || [];
+    }
+
     async function apiListSessions() {
         const r = await fetch(`${API}/sessions/list?user_id=${USER_ID}`, {method: "POST"});
         const j = await r.json();
@@ -853,9 +954,15 @@
     }
 
     async function apiCreateSession(bot_name) {
+        const body = {
+            user_id: USER_ID,
+            bot_name,
+            channel: CHANNEL,
+            agent_key: currentAgentKey || null
+        };
         const r = await fetch(`${API}/sessions/create`, {
             method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({user_id: USER_ID, bot_name, channel: CHANNEL})
+            body: JSON.stringify(body)
         });
         const j = await r.json();
         if (j.code !== 0) throw new Error(j.message || "create failed");
@@ -895,7 +1002,8 @@
         try {
             const j = await r.json();
             if (j.code !== 0) console.warn("update_flags failed:", j.message);
-        } catch {}
+        } catch {
+        }
     }
 
     async function apiSendMessageJSON(session_id, role, content, rag_enabled) {
@@ -939,11 +1047,136 @@
         streamingReader = null;
     }
 
-    async function apiGetAgents() {
-        const r = await fetch(`${API}/agents/list`);
-        const j = await r.json();
-        if (j.code !== 0) throw new Error(j.message || "agents failed");
-        return j.data || [];
+    /** --------------- Agent 快捷键渲染 --------------- */
+
+    function handleShortcutClick(shortcut) {
+        const ta = $("#input");
+        if (!ta) return;
+
+        const tpl = (shortcut.prompt_template && String(shortcut.prompt_template).trim())
+            ? String(shortcut.prompt_template).trim()
+            : (shortcut.title || "");
+
+        if (!tpl) return;
+
+        ta.value = tpl;
+
+        shortcutsHidden = true;
+        const bar = $("#shortcut-bar");
+        if (bar) {
+            bar.style.display = "none";
+        }
+
+        send();
+    }
+
+    function renderShortcutsForAgent(agentKey) {
+        const bar = $("#shortcut-bar");
+        if (!bar) return;
+
+        bar.innerHTML = "";
+
+        if (!agentKey || shortcutsHidden) {
+            bar.style.display = "none";
+            return;
+        }
+
+        const agent = agentsMap[agentKey];
+        const list = agent && Array.isArray(agent.task_shortcuts) ? agent.task_shortcuts : [];
+        if (!list.length) {
+            bar.style.display = "none";
+            return;
+        }
+
+        bar.style.display = "flex";
+
+        list.forEach(sc => {
+            const pill = ce("button", "shortcut-pill");
+            pill.type = "button";
+            pill.dataset.id = sc.id || "";
+
+            const t = ce("div", "shortcut-pill-title");
+            t.textContent = sc.title || "";
+            pill.appendChild(t);
+
+            if (sc.subtitle) {
+                const sub = ce("div", "shortcut-pill-sub");
+                sub.textContent = sc.subtitle;
+                pill.appendChild(sub);
+            }
+
+            pill.onclick = () => handleShortcutClick(sc);
+            bar.appendChild(pill);
+        });
+    }
+
+    /** --------------- Agent 渲染与切换 --------------- */
+
+    function renderAgents() {
+        const box = $("#agent-list");
+        box.innerHTML = "";
+        if (!agents || !agents.length) {
+            const text = ce("div");
+            text.style.fontSize = "12px";
+            text.style.color = "var(--muted)";
+            text.textContent = "暂无预设助手";
+            box.appendChild(text);
+            return;
+        }
+
+        agents.forEach(a => {
+            const item = ce("div", "agent-item");
+            item.dataset.key = a.key;
+
+            const name = ce("span", "agent-name");
+            name.textContent = a.name || a.key;
+
+            const desc = ce("span", "agent-desc");
+            desc.textContent = a.description || "";
+
+            item.appendChild(name);
+            item.appendChild(desc);
+
+            if (a.key === currentAgentKey) {
+                item.classList.add("active");
+            }
+
+            item.onclick = async () => {
+                if (a.key === currentAgentKey && !pendingNew) {
+                    return;
+                }
+
+                const needConfirm = hasUserOrAssistant() && !pendingNew;
+                if (needConfirm) {
+                    const ok = await uiConfirm("切换助手将新建一个会话, 是否继续?");
+                    if (!ok) return;
+                }
+
+                currentAgentKey = a.key;
+                pendingNew = true;
+                currentSessionId = null;
+                shortcutsHidden = false;
+
+                $("#chat-messages").innerHTML = "";
+                renderAgentsActive();
+                updateAgentCurrentLabel();
+                renderShortcutsForAgent(currentAgentKey);
+                renderSessionsActive();
+            };
+
+            box.appendChild(item);
+        });
+    }
+
+    function renderAgentsActive() {
+        document.querySelectorAll(".agent-item").forEach(el => {
+            const key = el.dataset.key;
+            if (key === currentAgentKey) {
+                el.classList.add("active");
+            } else {
+                el.classList.remove("active");
+            }
+        });
     }
 
     /** --------------- 会话列表 --------------- */
@@ -966,8 +1199,21 @@
 
         sessions.forEach(s => {
             const item = ce("div", "session-item" + (s.session_id === currentSessionId ? " active" : ""));
+            const main = ce("div", "session-main");
             const title = ce("div", "session-title");
-            title.textContent = s.session_name || `[${s.bot_name}] New Chat`;
+            const meta = ce("div", "session-meta");
+
+            const agentName = getAgentNameByKey(s.agent_key);
+            const name = s.session_name || "新会话";
+            title.textContent = name;
+
+            const metaParts = [];
+            if (agentName) metaParts.push(`助手: ${agentName}`);
+            if (s.bot_name) metaParts.push(`模型: ${s.bot_name}`);
+            meta.textContent = metaParts.join(" | ");
+
+            main.appendChild(title);
+            main.appendChild(meta);
 
             const act = ce("div", "session-actions");
             const del = ce("button", "btn-del");
@@ -980,14 +1226,13 @@
                 await apiDeleteSession(s.session_id);
                 if (currentSessionId === s.session_id) {
                     currentSessionId = null;
-                    $("#chat").innerHTML = "";
-                    ensureChatHeader();
+                    $("#chat-messages").innerHTML = "";
                 }
                 await reloadSessions();
             };
             act.appendChild(del);
 
-            item.appendChild(title);
+            item.appendChild(main);
             item.appendChild(act);
 
             item.onclick = async () => {
@@ -1002,11 +1247,18 @@
                 document.getElementById("ck-rag").checked = !!s.rag_enabled;
                 document.getElementById("ck-stream").checked = !!s.stream_enabled;
 
-                document.getElementById("chat").innerHTML = "";
-                ensureChatHeader();
+                if (s.agent_key) {
+                    currentAgentKey = s.agent_key;
+                    renderAgentsActive();
+                    updateAgentCurrentLabel();
+                }
+
+                document.getElementById("chat-messages").innerHTML = "";
                 await loadHistory(currentSessionId);
 
-                applyAgentUIBySession(s);
+                shortcutsHidden = hasUserOrAssistant();
+                renderShortcutsForAgent(currentAgentKey);
+
                 renderSessionsActive();
             };
 
@@ -1030,10 +1282,8 @@
     /** --------------- 历史渲染 --------------- */
     async function loadHistory(sessionId) {
         setStatus("加载历史…");
-        const panel = $("#chat");
+        const panel = $("#chat-messages");
         panel.innerHTML = "";
-        ensureChatHeader();
-
         const hist = await apiHistory(sessionId);
         (hist || []).forEach(m => {
             const role = (typeof m.role === "string") ? m.role.toLowerCase() : "system";
@@ -1078,52 +1328,17 @@
             pendingBotName = newModel;
             currentSessionId = null;
             currentBotName = newModel;
-            $("#chat").innerHTML = "";
-            ensureChatHeader();
+            $("#chat-messages").innerHTML = "";
+            shortcutsHidden = false;
+            renderShortcutsForAgent(currentAgentKey);
             insertSystemTip(`切换模型 ${newModel}, 已创建本地新会话`);
+            renderSessionsActive();
         };
-    }
-
-    /** --------------- Agent 渲染（默认助手） --------------- */
-    function updateAgentUI(name, desc) {
-        const nm = name || AGENT_PRESETS[DEFAULT_AGENT_KEY].name;
-        const ds = desc || AGENT_PRESETS[DEFAULT_AGENT_KEY].desc;
-
-        const topName = document.getElementById("agent-name-top");
-        if (topName) topName.textContent = nm;
-
-        const bottomName = document.getElementById("assistant-name");
-        if (bottomName) bottomName.textContent = nm;
-
-        const bottomDesc = document.getElementById("assistant-desc");
-        if (bottomDesc) bottomDesc.textContent = ds;
-
-        const card = document.querySelector(".assistant-card");
-        if (card) {
-            card.classList.add("active");
-        }
-    }
-
-    function applyCurrentAgent(agent) {
-        const name = agent?.name || AGENT_PRESETS[DEFAULT_AGENT_KEY].name;
-        const desc = agent?.description || AGENT_PRESETS[DEFAULT_AGENT_KEY].desc;
-        updateAgentUI(name, desc);
-    }
-
-    /**
-     * 根据 session 上的 agent_key 更新 UI
-     * 当前 main 分支还没有 agent_key，就全部当 default 处理。
-     * 以后 feature 分支加上 agent_key 后，这里自然生效。
-     */
-    function applyAgentUIBySession(session) {
-        const key = (session && session.agent_key) ? session.agent_key : DEFAULT_AGENT_KEY;
-        const meta = AGENT_PRESETS[key] || AGENT_PRESETS[DEFAULT_AGENT_KEY];
-        updateAgentUI(meta.name, meta.desc);
     }
 
     /** --------------- 系统提示（仅UI，不持久化） --------------- */
     async function insertSystemTip(text) {
-        $("#chat").appendChild(msgBubble("system", text));
+        $("#chat-messages").appendChild(msgBubble("system", text));
         scrollBottom();
     }
 
@@ -1151,13 +1366,13 @@
         const sessionId = await ensureSessionIfNeeded();
 
         const userRow = msgBubble("user", text);
-        $("#chat").appendChild(userRow);
+        $("#chat-messages").appendChild(userRow);
         scrollBottom();
         ta.value = "";
 
         const botRow = msgBubble("assistant", "");
         const bubble = botRow.querySelector(".bubble");
-        $("#chat").appendChild(botRow);
+        $("#chat-messages").appendChild(botRow);
         scrollBottom();
 
         const useStream = $("#ck-stream").checked;
@@ -1200,7 +1415,7 @@
                 }
                 setStatus("就绪");
             }
-            await reloadSessions();
+            await reloadSessions()
         } catch (e) {
             bubble.textContent = `【错误】${e.message || e}`;
             setStatus("出错");
@@ -1232,8 +1447,9 @@
         pendingBotName = model;
         currentSessionId = null;
         currentBotName = model;
-        $("#chat").innerHTML = "";
-        ensureChatHeader();
+        $("#chat-messages").innerHTML = "";
+        shortcutsHidden = false;
+        renderShortcutsForAgent(currentAgentKey);
         insertSystemTip(`已创建新会话（模型：${model}）`);
         renderSessionsActive();
     };
@@ -1246,8 +1462,9 @@
         pendingNew = true;
         pendingBotName = $("#model-select").value || models[0]?.bot_name;
         $("#session-list").innerHTML = "";
-        $("#chat").innerHTML = "";
-        ensureChatHeader();
+        $("#chat-messages").innerHTML = "";
+        shortcutsHidden = false;
+        renderShortcutsForAgent(currentAgentKey);
         renderSessionsActive();
     };
 
@@ -1272,30 +1489,32 @@
     /** --------------- 初始化 --------------- */
     (async function init() {
         try {
+            try {
+                agents = await apiListAgents();
+                agentsMap = {};
+                agents.forEach(a => {
+                    agentsMap[a.key] = a;
+                });
+                const defaultAgent = agents.find(a => a.key === "default_chat") || agents[0];
+                if (defaultAgent) {
+                    currentAgentKey = defaultAgent.key;
+                }
+                renderAgents();
+                updateAgentCurrentLabel();
+                renderShortcutsForAgent(currentAgentKey);
+            } catch (e) {
+                console.warn("load agents failed:", e);
+            }
+
             models = await apiGetModels();
         } catch (e) {
             console.error(e);
         }
         renderModels();
 
-        ensureChatHeader();
-
-        // 拿助手信息（当前只有一个默认助手）
-        try {
-            agents = await apiGetAgents();
-        } catch (e) {
-            console.warn("fetch agents failed:", e);
-        }
-        if (agents && agents.length > 0) {
-            currentAgentKey = agents[0].key;
-            applyCurrentAgent(agents[0]);
-        } else {
-            applyCurrentAgent(null);
-        }
-
         pendingNew = true;
         pendingBotName = $("#model-select").value || models[0]?.bot_name || "gpt-3.5-turbo";
-        insertSystemTip(`已进入新会话（模型：${pendingBotName}）`);
+        insertSystemTip(`已进入新会话（助手：${getAgentNameByKey(currentAgentKey) || "默认"}，模型：${pendingBotName}）`);
 
         await reloadSessions();
     })();
