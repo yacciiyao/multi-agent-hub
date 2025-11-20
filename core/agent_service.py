@@ -23,13 +23,13 @@ class AgentService:
                     "name": a.name,
                     "description": a.description,
                     "icon": a.icon,
-                    # 模态能力：比如 ["text"] 或 ["text", "image"]
-                    "supports_modalities": a.supports_modalgitities,
+                    "supports_modalities": a.supports_modalities,
                     "task_shortcuts": [
                         {
                             "id": t.id,
                             "title": t.title,
                             "subtitle": t.subtitle,
+                            "prompt_template": t.prompt_template,
                         }
                         for t in a.task_shortcuts
                     ],
