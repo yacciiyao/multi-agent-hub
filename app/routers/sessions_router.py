@@ -18,6 +18,7 @@ def get_session_service() -> SessionService:
 class CreateSessionRequest(BaseModel):
     user_id: int = Field(..., description="用户ID")
     bot_name: str = Field(..., description="模型名称")
+    agent_key: str = Field(..., description="模型名称")
     channel: Channel = Field(default=Channel.WEB, description="渠道（默认WEB）")
 
 
@@ -43,6 +44,7 @@ async def create_session(request: CreateSessionRequest):
         session_id = await svc.create_session(
             user_id=request.user_id,
             bot_name=request.bot_name,
+            agent_key=request.agent_key,
             channel=request.channel,
         )
     except ValueError as e:

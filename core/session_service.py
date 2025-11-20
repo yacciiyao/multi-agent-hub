@@ -10,6 +10,7 @@ from typing import List, Optional
 from bots.bot_registry import BotRegistry
 from domain.enums import Channel
 from domain.session import Session
+from infrastructure.agent_registry import get_agent, get_default_agent
 from infrastructure.config_manager import config
 
 
@@ -25,8 +26,17 @@ class SessionService:
             self._storage = storage_manager.get()
         return self._storage
 
-    async def create_session(self, user_id: int, bot_name: str, channel: Channel) -> str:
+    async def create_session(self, user_id: int, bot_name: str, agent_key: str, channel: Channel) -> str:
         self._ensure_bot_exists(bot_name)
+
+        if agent_key:
+            agent = get_agent(agent_key)
+            if not agent:
+                raise ValueError(f"invalid agent_key: {agent_key}")
+            _agent_key = agent.key
+        else:
+            agent = get_default_agent()
+            _agent_key = agent.key
 
         limit = int(self._config.get("max_sessions", 50))
 
@@ -42,6 +52,7 @@ class SessionService:
             session_id=session_id,
             user_id=user_id,
             bot_name=bot_name,
+            agent_key=_agent_key,
             channel=channel,
             session_name=None,
             rag_enabled=False,

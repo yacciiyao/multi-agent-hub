@@ -48,7 +48,7 @@ class MySQLStorage(IStorage):
 
     async def create_session(self, session: Session) -> None:
         sql = """
-            INSERT INTO chat_sessions (session_id, user_id, bot_name, channel, session_name, 
+            INSERT INTO chat_sessions (session_id, user_id, bot_name, agent_key, channel, session_name, 
             rag_enabled, stream_enabled, is_deleted, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, 0, %s, %s)
         """
@@ -61,6 +61,7 @@ class MySQLStorage(IStorage):
                 session.session_id,
                 session.user_id,
                 session.bot_name,
+                session.agent_key,
                 getattr(session.channel, "value", str(session.channel)),
                 session.session_name,
                 int(getattr(session, "rag_enabled", False)),
@@ -96,7 +97,7 @@ class MySQLStorage(IStorage):
 
     async def get_session(self, user_id: int, session_id: str) -> Optional[Session]:
         sql = """
-            SELECT session_id, user_id, bot_name, channel, session_name,
+            SELECT session_id, user_id, bot_name, agent_key, channel, session_name,
                    rag_enabled, stream_enabled, is_deleted, created_at, updated_at
               FROM chat_sessions
              WHERE user_id=%s AND session_id=%s AND is_deleted=0
@@ -108,7 +109,7 @@ class MySQLStorage(IStorage):
 
     async def list_sessions(self, user_id: int) -> List[Session]:
         sql = """
-            SELECT session_id, user_id, bot_name, channel, session_name,
+            SELECT session_id, user_id, bot_name, agent_key, channel, session_name,
                    rag_enabled, stream_enabled, is_deleted, created_at, updated_at
               FROM chat_sessions
              WHERE user_id=%s AND is_deleted=0
@@ -236,6 +237,7 @@ class MySQLStorage(IStorage):
                 `session_name`   VARCHAR ( 100 )                  CHARACTER SET utf8mb4,
                 `user_id`        INT             NOT NULL,
                 `bot_name`       VARCHAR ( 50 )  NOT NULL,
+                `agent_key`      VARCHAR ( 50 )  NOT NULL,
                 `channel`        VARCHAR ( 20 )  NOT NULL,
                 `rag_enabled`    TINYINT                  DEFAULT '0',
                 `stream_enabled` TINYINT                  DEFAULT '0',
@@ -282,6 +284,7 @@ class MySQLStorage(IStorage):
             session_id=row["session_id"],
             user_id=int(row["user_id"]),
             bot_name=row["bot_name"],
+            agent_key=row["agent_key"],
             channel=row["channel"],
             session_name=row["session_name"],
             rag_enabled=bool(int(row.get("rag_enabled", 0))),

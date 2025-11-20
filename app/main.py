@@ -12,7 +12,7 @@ from starlette.datastructures import State
 from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 
-from app.routers import bots_router, sessions_router, messages_router, rag_router
+from app.routers import bots_router, sessions_router, messages_router, rag_router, agents_router
 from infrastructure.config_manager import config
 from infrastructure.mlogger import mlogger
 from infrastructure.storage_manager import storage_manager
@@ -60,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(sessions_router.router)
     app.include_router(messages_router.router)
     app.include_router(rag_router.router)
+    app.include_router(agents_router.router)
 
     # 静态文件
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))

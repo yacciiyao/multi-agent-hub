@@ -13,7 +13,8 @@ from domain.enums import Channel
 class Session(BaseModel):
     session_id: str
     user_id: int
-    bot_name: str
+    bot_name: str = Field(..., description="模型名称")
+    agent_key: str = Field(..., description="助手名称")
     session_name: Optional[str] = None
     stream_enabled: bool = False
     rag_enabled: bool = False
@@ -30,6 +31,7 @@ class Session(BaseModel):
             "session_id": self.session_id,
             "user_id": self.user_id,
             "bot_name": self.bot_name,
+            "agent_key": self.agent_key,
             "channel": getattr(self.channel, "value", str(self.channel)),
             "session_name": self.session_name,
             "rag_enabled": bool(self.rag_enabled),
