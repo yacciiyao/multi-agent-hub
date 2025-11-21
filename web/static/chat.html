@@ -56,6 +56,7 @@
             min-height: 0;
             overflow: hidden;
         }
+
         .brand {
             display: flex;
             align-items: center;
@@ -264,15 +265,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 8px;
-            border-radius: 10px;
+            padding: 10px;
             background: #fff;
-            border: 1px solid var(--border);
+            border-top: 2px solid var(--border);
         }
 
         .user-avatar {
-            width: 28px;
-            height: 28px;
+            width: 35px;
+            height: 35px;
             border-radius: 999px;
             background: #e5e7eb;
             overflow: hidden;
@@ -339,6 +339,7 @@
             padding: 0 20px 24px;
             min-height: 0;
         }
+
         .chat-header {
             position: sticky;
             top: 0;
@@ -468,7 +469,7 @@
         }
 
         .shortcut-pill {
-            border-radius: 999px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: #fff;
             padding: 6px 12px;
@@ -510,7 +511,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding: 12px 0 20px;
+            padding: 12px 0 12px;
             background: #f6f6f6;
             flex-shrink: 0;
         }
@@ -532,7 +533,7 @@
 
         #send {
             position: absolute;
-            right: 24px;
+            right: 12px;
             bottom: 24px;
             width: 40px;
             height: 40px;
@@ -677,6 +678,17 @@
     </div>
 </div>
 
+
+<div id="imageViewerMask" class="modal-mask">
+    <div class="image-viewer">
+        <img id="imageViewerImg" src="" alt="预览图片"/>
+        <div class="image-viewer-actions">
+            <a id="imageViewerDownload" class="btn" href="#" target="_blank" download>下载</a>
+            <button id="imageViewerClose" class="btn">关闭</button>
+        </div>
+    </div>
+</div>
+
 <div class="app">
     <aside class="sidebar">
         <div class="brand">
@@ -706,7 +718,6 @@
                 </div>
                 <div class="user-info">
                     <div class="user-name">Demo User</div>
-                    <div class="user-sub">在线 · WEB</div>
                 </div>
             </div>
         </div>
@@ -731,7 +742,7 @@
         <div class="bottom-panel">
             <div id="shortcut-bar" class="shortcut-bar"></div>
             <div class="composer">
-                <textarea id="input" placeholder="输入消息, Shift+Enter 换行, Enter 发送"></textarea>
+                <textarea id="input" maxlength="500" placeholder="输入消息, Shift+Enter 换行, Enter 发送"></textarea>
                 <button id="send" aria-label="发送">
                     <svg viewBox="0 0 24 24" fill="none">
                         <path d="M3.5 11.5L20 4l-7.5 16-2-7-7-1.5Z" stroke="white" stroke-width="1.8"

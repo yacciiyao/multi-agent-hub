@@ -17,8 +17,8 @@ from infrastructure.mlogger import mlogger
 class ClaudeBot(BaseBot):
     name = "Claude"
     bots = {
-        "claude-3-5-sonnet-latest": {"desc": "旗舰对话/推理"},
-        "claude-3-5-haiku-latest": {"desc": "性价比/低延迟"},
+        "claude-3-5-sonnet-latest": {"desc": "旗舰对话/推理", "allow_image": False},
+        "claude-3-5-haiku-latest": {"desc": "性价比/低延迟", "allow_image": False},
     }
 
     def __init__(self, bot_name: Optional[str] = None, **kwargs):

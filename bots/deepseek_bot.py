@@ -16,8 +16,8 @@ from infrastructure.mlogger import mlogger
 class DeepSeekBot(BaseBot):
     name = "DeepSeek"
     bots = {
-        "deepseek-chat": {"desc": "DeepSeek 对话模型"},
-        "deepseek-reasoner": {"desc": "带推理能力的模型"},
+        "deepseek-chat": {"desc": "DeepSeek 对话模型", "allow_image": False},
+        "deepseek-reasoner": {"desc": "带推理能力的模型", "allow_image": False},
     }
 
     def __init__(self, bot_name: Optional[str] = None, **kwargs):

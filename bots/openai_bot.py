@@ -16,10 +16,10 @@ from infrastructure.mlogger import mlogger
 class OpenAIBot(BaseBot):
     name = "OpenAI"
     bots = {
-        "gpt-3.5-turbo": {"desc": "经典稳定版，适合常规任务"},
-        "gpt-4o-mini": {"desc": "轻量快速版 GPT-4"},
-        "gpt-4o": {"desc": "旗舰多模态模型"},
-        "gpt-5-mini": {"desc": "兼顾速度、成本和能力"}
+        "gpt-3.5-turbo": {"desc": "经典稳定版，适合常规任务", "allow_image": False},
+        "gpt-4o-mini": {"desc": "轻量快速版 GPT-4", "allow_image": True},
+        "gpt-4o": {"desc": "旗舰多模态模型", "allow_image": True},
+        "gpt-5-mini": {"desc": "兼顾速度、成本和能力", "allow_image": True}
     }
 
     def __init__(self, bot_name: Optional[str] = None, **kwargs):

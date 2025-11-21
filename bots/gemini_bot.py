@@ -17,9 +17,9 @@ from infrastructure.mlogger import mlogger
 class GeminiBot(BaseBot):
     name = "Gemini"
     bots = {
-        "gemini-2.5-pro": {"desc": "高阶推理与复杂任务（旗舰推理）"},
-        "gemini-2.5-flash": {"desc": "价格性能最优，通用大规模推理/低延迟"},
-        "gemini-2.5-flash-lite": {"desc": "更快更省，极致性价比与高并发场景"},
+        "gemini-2.5-pro": {"desc": "高阶推理与复杂任务（旗舰推理）", "allow_image": False},
+        "gemini-2.5-flash": {"desc": "价格性能最优，通用大规模推理/低延迟", "allow_image": False},
+        "gemini-2.5-flash-lite": {"desc": "更快更省，极致性价比与高并发场景", "allow_image": False},
         # 如需图像生成/编辑再单独接入多模态分支：
         # "gemini-2.5-flash-image": {"desc": "图像生成/编辑（新增 Flash Image 能力）"},
     }

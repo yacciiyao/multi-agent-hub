@@ -16,9 +16,9 @@ from infrastructure.mlogger import mlogger
 class QwenBot(BaseBot):
     name = "Qwen"
     bots = {
-        "qwen2.5-7b-instruct": {"desc": "轻量指令模型"},
-        "qwen2.5-72b-instruct": {"desc": "高性能指令模型"},
-        "qwen3-32b": {"desc": "Qwen3 系列 32B（兼容模式）"},
+        "qwen2.5-7b-instruct": {"desc": "轻量指令模型", "allow_image": False},
+        "qwen2.5-72b-instruct": {"desc": "高性能指令模型", "allow_image": False},
+        "qwen3-32b": {"desc": "Qwen3 系列 32B（兼容模式）", "allow_image": False},
     }
 
     def __init__(self, bot_name: Optional[str] = None, **kwargs):

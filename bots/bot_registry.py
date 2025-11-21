@@ -57,12 +57,11 @@ class BotRegistry:
         for bot_name, meta in bots.items():
             if not isinstance(bot_name, str) or not bot_name or bot_name in cls._seen:
                 continue
-            desc = ""
-            if isinstance(meta, dict):
-                desc = meta.get("desc", "") or ""
-            elif isinstance(meta, str):
-                desc = meta
-            cls._bots.append({"family": str(family), "bot_name": bot_name, "desc": desc})
+
+            desc = meta.get("desc", "") or ""
+            allow_image = meta.get("allow_image", False)
+
+            cls._bots.append({"family": str(family), "bot_name": bot_name, "desc": desc, "allow_image": allow_image})
             cls._seen.add(bot_name)
             cls._class[bot_name] = bot_cls
 
