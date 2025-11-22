@@ -46,6 +46,10 @@ class MessageService:
         if not bot:
             raise ValueError("Bot not found.")
 
+        allow_image = bool(getattr(bot, "allow_image", False))
+        if message.attachments and not allow_image:
+            raise ValueError("当前模型不支持图片对话，请切换到支持图片的模型。")
+
         try:
             agent_key = getattr(session, "agent_key", None)
             agent = get_agent(agent_key) if agent_key else None
@@ -125,7 +129,14 @@ class MessageService:
         if stream:
             async def generator() -> AsyncIterator[str]:
                 buffer: List[str] = []
-                streamer = await bot.chat(context, stream=True)
+
+                attachments = getattr(message, "attachments", None) or []
+                use_vision = bool(attachments) and allow_image and hasattr(bot, "chat_with_attachments")
+                if use_vision:
+                    # 支持图片的 Bot：优先走多模态接口
+                    streamer = await bot.chat_with_attachments(messages=context, attachments=attachments, stream=True)
+                else:
+                    streamer = await bot.chat(context, stream=True)
 
                 async for chunk in streamer:
                     s = str(chunk or "")

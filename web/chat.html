@@ -663,6 +663,42 @@
             justify-content: flex-end;
             border-top: 1px solid var(--border)
         }
+
+        /* 上传按钮样式 */
+        .upload-btn {
+            position: absolute;
+            left: 12px;
+            top: 70%;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .upload-btn svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* 上传按钮 hover 和 active 状态 */
+        .upload-btn:hover {
+            background: var(--green);
+        }
+
+        .upload-btn:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        /* 隐藏的文件输入框 */
+        .file-input {
+            display: none;
+        }
+
+
     </style>
 </head>
 <body>
@@ -742,13 +778,23 @@
         <div class="bottom-panel">
             <div id="shortcut-bar" class="shortcut-bar"></div>
             <div class="composer">
-                <textarea id="input" maxlength="500" placeholder="输入消息, Shift+Enter 换行, Enter 发送"></textarea>
+                <label for="file-upload" class="upload-btn">
+                    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="none">
+                        <path d="M512 170.666667a42.666667 42.666667 0 0 1 42.666667 42.666666v256h256a42.666667 42.666667 0 0 1 0 85.333334h-256v256a42.666667 42.666667 0 0 1-85.333334 0v-256H213.333333a42.666667 42.666667 0 0 1 0-85.333334h256V213.333333a42.666667 42.666667 0 0 1 42.666667-42.666666z"
+                              fill="#666666"/>
+                    </svg>
+                </label>
+                <label for="input"></label><textarea id="input" maxlength="500"
+                                                     placeholder="输入消息, Shift+Enter 换行, Enter 发送"></textarea>
+
                 <button id="send" aria-label="发送">
                     <svg viewBox="0 0 24 24" fill="none">
                         <path d="M3.5 11.5L20 4l-7.5 16-2-7-7-1.5Z" stroke="white" stroke-width="1.8"
                               stroke-linejoin="round"/>
                     </svg>
                 </button>
+                <input type="file" id="file-upload" class="file-input" accept="image/*"/>
+
             </div>
         </div>
     </main>
@@ -1319,6 +1365,7 @@
             const opt = ce("option");
             opt.value = m.bot_name;
             opt.textContent = `${m.bot_name}（${m.family}）`;
+            opt.allow_image = m.allow_image;
             sel.appendChild(opt);
         });
         if (!currentBotName && models[0]) currentBotName = models[0].bot_name;
@@ -1430,6 +1477,7 @@
             setStatus("出错");
         }
     }
+
 
     /** --------------- 事件绑定 --------------- */
     $("#send").onclick = send;

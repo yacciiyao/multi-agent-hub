@@ -17,3 +17,8 @@ class Role(str, Enum):
     ASSISTANT = "assistant"
     SYSTEM = "system"
     TOOLS = "tool"
+
+
+class AttachmentType(str, Enum):
+    """消息附件类型，目前只用 image，后续可以扩展 audio / file 等。"""
+    image = "image"

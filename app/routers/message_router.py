@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# @File: messages_router.py
+# @File: message_router.py
 # @Author: yaccii
 # @Time: 2025-11-09 19:03
 # @Description: 发送消息、流式返回、RAG开关动作推送
-import time
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
@@ -12,10 +11,29 @@ from starlette.responses import StreamingResponse
 
 from core.message_service import MessageService
 from core.session_service import SessionService
-from domain.enums import Role, Channel
-from domain.message import Message
+from domain.enums import Role, Channel, AttachmentType
+from domain.message import Message, Attachment
 from infrastructure.response import failure, success
 
+class AttachmentDTO(BaseModel):
+    id: str
+    type: AttachmentType
+    url: str
+    mime_type: Optional[str] = None
+    file_name: Optional[str] = None
+    size_bytes: Optional[int] = None
+    meta: Dict[str, Any] = Field(default_factory=dict)
+
+    def to_domain(self) -> Attachment:
+        return Attachment(
+            id=self.id,
+            type=self.type,
+            url=self.url,
+            mime_type=self.mime_type,
+            file_name=self.file_name,
+            size_bytes=self.size_bytes,
+            meta=dict(self.meta or {}),
+        )
 
 def get_message_service() -> MessageService:
     return MessageService()
@@ -30,6 +48,7 @@ class ChatRequest(BaseModel):
     session_id: str = Field(..., description="会话ID")
     role: Role = Field(default=Role.USER, description="消息角色")
     content: str = Field(..., description="消息内容")
+    attachments: List[AttachmentDTO] = Field(default_factory=list)
     stream: bool = Field(default=False, description="是否流式返回")
     rag_enabled: bool = Field(default=False, description="是否启用RAG")
     channel: Channel = Field(default=Channel.WEB, description="渠道")
@@ -48,10 +67,15 @@ async def history(user_id: int = Query(..., description="用户ID"),
 
 @router.post("/chat", summary="发送消息")
 async def chat(request: ChatRequest):
+    attachments: List[Attachment] = [
+        att.to_domain() for att in (request.attachments or [])
+    ]
+
     msg = Message(
         session_id=request.session_id,
         role=request.role,
         content=request.content,
+        attachments=attachments,
         rag_enabled=bool(request.rag_enabled),
         stream_enabled=bool(request.stream),
     )

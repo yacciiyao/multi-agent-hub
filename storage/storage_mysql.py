@@ -13,7 +13,7 @@ from typing import Optional, List
 import aiomysql
 
 from domain.enums import Role
-from domain.message import Message, RagSource
+from domain.message import Message, RagSource, Attachment
 from domain.session import Session
 from infrastructure.mlogger import mlogger
 from storage.storage_base import IStorage
@@ -152,10 +152,11 @@ class MySQLStorage(IStorage):
 
     async def append_message(self, message: Message) -> None:
         sources_json = json.dumps([s.model_dump() for s in (message.sources or [])], ensure_ascii=False)
+        attachments_json = json.dumps([a.model_dump() for a in (message.attachments or [])], ensure_ascii=False)
         sql = """
             INSERT INTO chat_messages
-              (session_id, role, content, rag_enabled, stream_enabled, sources, created_at, is_deleted)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 0)
+              (session_id, role, content, attachments, rag_enabled, stream_enabled, sources, created_at, is_deleted)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0)
         """
         created_at = message.created_at or int(time.time())
         stream_enabled = 1 if getattr(message, "stream_enabled", False) else 0
@@ -165,6 +166,7 @@ class MySQLStorage(IStorage):
                 message.session_id,
                 getattr(message.role, "value", str(message.role)),
                 message.content,
+                attachments_json,
                 1 if message.rag_enabled else 0,
                 stream_enabled,
                 sources_json,
@@ -185,7 +187,7 @@ class MySQLStorage(IStorage):
             return []
         rows = await self._execute(
             """
-            SELECT id, session_id, role, content, rag_enabled, stream_enabled, sources, created_at, is_deleted
+            SELECT id, session_id, role, content, attachments, rag_enabled, stream_enabled, sources, created_at, is_deleted
               FROM chat_messages
              WHERE session_id=%s AND is_deleted=0
              ORDER BY created_at ASC
@@ -256,6 +258,7 @@ class MySQLStorage(IStorage):
                 `session_id`     VARCHAR ( 64 ) NOT NULL,
                 `role`           VARCHAR ( 16 ) NOT NULL,
                 `content`        MEDIUMTEXT     NOT NULL,
+                `attachments`    JSON           NULL,
                 `rag_enabled`    TINYINT                 DEFAULT '0',
                 `stream_enabled` TINYINT                 DEFAULT '0',
                 `sources`        MEDIUMTEXT,
@@ -311,10 +314,15 @@ class MySQLStorage(IStorage):
             except (ValueError, TypeError):
                 return default
 
+        raw = row["attachments"]
+        data = json.loads(raw)
+        attachments = [Attachment(**item) for item in data]
+
         return Message(
             session_id=row["session_id"],
             role=role,
             content=row.get("content", ""),
+            attachments=attachments,
             rag_enabled=to_bool(row.get("rag_enabled"), False),
             sources=sources,
             created_at=int(row.get("created_at", 0)),

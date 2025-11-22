@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @File: bots_router.py
+# @File: bot_router.py
 # @Author: yaccii
 # @Time: 2025-11-09 19:04
 # @Description: 模型展示

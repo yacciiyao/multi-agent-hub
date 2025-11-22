@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @File: sessions_router.py
+# @File: session_router.py
 # @Author: yaccii
 # @Time: 2025-11-09 18:22
 # @Description: 会话创建/列表/删除/重开
