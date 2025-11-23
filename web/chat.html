@@ -42,7 +42,9 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/dist/highlight.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+
 
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
@@ -443,10 +445,13 @@
             max-width: 760px;
             border: 1px solid var(--border);
             background: #fff;
-            border-radius: 10px;
             padding: 10px 12px;
             word-break: break-word;
             white-space: normal;
+            padding: 0px 8px !important;
+            line-height: 1.35 !important;
+            font-size: 13px;
+            border-radius: 8px;
             box-shadow: 0 1px 0 rgba(0, 0, 0, .02)
         }
 
@@ -753,7 +758,7 @@
 <div class="app">
     <aside class="sidebar">
         <div class="brand">
-            <img src="/static/images/logo.png" alt="logo"/>
+            <img src="/static/static/images/logo.png" alt="logo"/>
             <h1>Multi-Agent Hub</h1>
         </div>
 
@@ -828,7 +833,7 @@
 </div>
 
 <script>
-    /** --------------- Markdown 渲染配置 --------------- */
+    /** ---------------- Markdown 渲染配置 ---------------- */
     marked.setOptions({
         gfm: true,
         breaks: true,
@@ -836,10 +841,15 @@
         mangle: false,
         highlight: (code, lang) => {
             try {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, {language: lang}).value;
+                if (window.hljs) {
+                    if (lang && hljs.getLanguage && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, {language: lang}).value;
+                    }
+                    if (hljs.highlightAuto) {
+                        return hljs.highlightAuto(code).value;
+                    }
                 }
-                return hljs.highlightAuto(code).value;
+                return code;
             } catch {
                 return code;
             }
@@ -847,11 +857,11 @@
     });
 
     function renderMarkdown(md) {
-        const html = marked.parse(md || '');
+        const html = marked.parse(md || "");
         return DOMPurify.sanitize(html);
     }
 
-    /** --------------- 配置与状态 --------------- */
+    /** ---------------- 配置与状态 ---------------- */
     const API = location.origin;
     const USER_ID = 1;
     const CHANNEL = "web";
@@ -871,19 +881,25 @@
 
     let pendingAttachments = [];
 
-    /** --------------- 工具函数 --------------- */
-    const $ = s => document.querySelector(s);
+    /** ---------------- 工具函数 ---------------- */
+    const $ = (s) => document.querySelector(s);
     const ce = (t, c) => {
         const el = document.createElement(t);
         if (c) el.className = c;
         return el;
     };
 
+    function rehighlight(scope = document) {
+        if (!window.hljs || typeof hljs.highlightElement !== "function") return;
+        scope.querySelectorAll("pre code").forEach((block) =>
+            hljs.highlightElement(block)
+        );
+    }
+
     function getInputText() {
         const el = $("#input");
         if (!el) return "";
-        // 将 &nbsp; 转为空格，保持换行
-        return (el.innerText || "").replace(/\u00A0/g, ' ').trim();
+        return (el.innerText || "").replace(/\u00A0/g, " ").trim();
     }
 
     function clearInput() {
@@ -902,10 +918,11 @@
     }
 
     function uiConfirm(message) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const mask = $("#confirmMask");
             $("#confirmMsg").textContent = message || "确认吗？";
-            const ok = $("#confirmOk"), cancel = $("#confirmCancel");
+            const ok = $("#confirmOk"),
+                cancel = $("#confirmCancel");
             const off = () => {
                 mask.style.display = "none";
                 ok.onclick = null;
@@ -925,7 +942,9 @@
 
     function hasUserOrAssistant() {
         const ns = [...document.querySelectorAll("#chat-messages .msg")];
-        return ns.some(n => n.classList.contains("user") || n.classList.contains("assistant"));
+        return ns.some(
+            (n) => n.classList.contains("user") || n.classList.contains("assistant")
+        );
     }
 
     function stripRagBlock(text) {
@@ -965,7 +984,7 @@
 
     function currentModelSupportsImage() {
         if (!currentBotName) return false;
-        const m = models.find(m => m.bot_name === currentBotName);
+        const m = models.find((m) => m.bot_name === currentBotName);
         return !!(m && m.allow_image);
     }
 
@@ -991,7 +1010,7 @@
         }
     }
 
-    /** --------------- DOM 生成（Markdown 渲染） --------------- */
+    /** ---------------- DOM（Markdown 渲染 + 图片） ---------------- */
     function msgBubble(role, text, attachments) {
         const wrap = ce("div", "msg " + role);
         const bubble = ce("div", "bubble");
@@ -999,11 +1018,12 @@
         const mdEl = ce("div", "chat-markdown");
         mdEl.innerHTML = renderMarkdown(stripRagBlock(text || ""));
         bubble.appendChild(mdEl);
+        rehighlight(bubble);
 
-        const imgs = (attachments || []).filter(a => a && a.type === "image");
+        const imgs = (attachments || []).filter((a) => a && a.type === "image");
         if (imgs.length) {
             const imgBox = ce("div", "message-images");
-            imgs.forEach(att => {
+            imgs.forEach((att) => {
                 const img = document.createElement("img");
                 img.src = att.url;
                 img.alt = att.file_name || "image";
@@ -1045,7 +1065,7 @@
         const bd = ce("div", "sources-body");
 
         btn.type = "button";
-        btn.textContent = "展开数据来源";
+        btn.textContent = "数据来源";
         cnt.textContent = `（${sources.length}）`;
 
         hd.appendChild(btn);
@@ -1056,7 +1076,7 @@
         sources.forEach((s, i) => {
             const line = ce("div", "source-item");
             const title = s.title || `来源 ${i + 1}`;
-            const score = (typeof s.score === "number") ? `（${s.score}）` : "";
+            const score = typeof s.score === "number" ? `（${s.score}）` : "";
 
             if (s.url) {
                 const a = ce("a");
@@ -1088,18 +1108,16 @@
 
         bd.style.display = "none";
         box.dataset.open = "0";
-
         hd.addEventListener("click", () => {
             const open = box.dataset.open === "1";
             box.dataset.open = open ? "0" : "1";
             bd.style.display = open ? "none" : "block";
-            btn.textContent = open ? "收起数据来源" : "展开数据来源";
         });
 
         container.appendChild(box);
     }
 
-    /** --------------- 图片预览渲染 --------------- */
+    /** ---------------- 图片预览渲染 ---------------- */
     function renderImagePreview() {
         const box = document.getElementById("image-preview");
         if (!box) return;
@@ -1130,7 +1148,7 @@
         });
     }
 
-    /** --------------- API --------------- */
+    /** ---------------- API ---------------- */
     async function apiGetModels() {
         const r = await fetch(`${API}/bots`);
         const j = await r.json();
@@ -1146,16 +1164,25 @@
     }
 
     async function apiListSessions() {
-        const r = await fetch(`${API}/sessions/list?user_id=${USER_ID}`, {method: "POST"});
+        const r = await fetch(
+            `${API}/sessions/list?user_id=${USER_ID}`,
+            {method: "POST"}
+        );
         const j = await r.json();
         if (j.code !== 0) throw new Error(j.message || "list sessions failed");
         return j.data || [];
     }
 
     async function apiCreateSession(bot_name) {
-        const body = {user_id: USER_ID, bot_name, channel: CHANNEL, agent_key: currentAgentKey || null};
+        const body = {
+            user_id: USER_ID,
+            bot_name,
+            channel: CHANNEL,
+            agent_key: currentAgentKey || null
+        };
         const r = await fetch(`${API}/sessions/create`, {
-            method: "POST", headers: {"Content-Type": "application/json"},
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(body)
         });
         const j = await r.json();
@@ -1164,19 +1191,30 @@
     }
 
     async function apiDeleteSession(session_id) {
-        const r = await fetch(`${API}/sessions/delete?user_id=${USER_ID}&session_id=${encodeURIComponent(session_id)}`, {method: "POST"});
+        const r = await fetch(
+            `${API}/sessions/delete?user_id=${USER_ID}&session_id=${encodeURIComponent(
+                session_id
+            )}`,
+            {method: "POST"}
+        );
         const j = await r.json();
         if (j.code !== 0) throw new Error(j.message || "delete failed");
     }
 
     async function apiDeleteAll() {
-        const r = await fetch(`${API}/sessions/delete_all?user_id=${USER_ID}`, {method: "POST"});
+        const r = await fetch(`${API}/sessions/delete_all?user_id=${USER_ID}`, {
+            method: "POST"
+        });
         const j = await r.json();
         if (j.code !== 0) throw new Error(j.message || "delete all failed");
     }
 
     async function apiHistory(session_id) {
-        const r = await fetch(`${API}/messages/history?user_id=${USER_ID}&session_id=${encodeURIComponent(session_id)}`);
+        const r = await fetch(
+            `${API}/messages/history?user_id=${USER_ID}&session_id=${encodeURIComponent(
+                session_id
+            )}`
+        );
         const j = await r.json();
         if (j.code !== 0) return [];
         return (j.data && j.data.history) || [];
@@ -1200,29 +1238,62 @@
         }
     }
 
-    async function apiSendMessageJSON(session_id, role, content, rag_enabled, attachments) {
+    async function apiSendMessageJSON(
+        session_id,
+        role,
+        content,
+        rag_enabled,
+        attachments
+    ) {
         const payload = {
-            user_id: USER_ID, session_id, content, role, stream: false, rag_enabled, channel: CHANNEL
+            user_id: USER_ID,
+            session_id,
+            content,
+            role,
+            stream: false,
+            rag_enabled,
+            channel: CHANNEL
         };
-        if (attachments && attachments.length) payload.attachments = attachments;
+        if (attachments && attachments.length) {
+            payload.attachments = attachments;
+        }
         const r = await fetch(`${API}/messages/chat`, {
-            method: "POST", headers: {"Content-Type": "application/json"},
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
         });
         const j = await r.json();
         if (j.code !== 0) throw new Error(j.message || "send failed");
         return {
-            reply: (j.data?.reply || ""),
-            sources: (j.data?.sources || []),
-            attachments: (j.data?.attachments || [])
+            reply: j.data?.reply || "",
+            sources: j.data?.sources || [],
+            attachments: j.data?.attachments || []
         };
     }
 
-    async function apiSendMessageStream(session_id, role, content, rag_enabled, attachments, onChunk) {
-        const payload = {user_id: USER_ID, session_id, content, role, stream: true, rag_enabled, channel: CHANNEL};
-        if (attachments && attachments.length) payload.attachments = attachments;
+    async function apiSendMessageStream(
+        session_id,
+        role,
+        content,
+        rag_enabled,
+        attachments,
+        onChunk
+    ) {
+        const payload = {
+            user_id: USER_ID,
+            session_id,
+            content,
+            role,
+            stream: true,
+            rag_enabled,
+            channel: CHANNEL
+        };
+        if (attachments && attachments.length) {
+            payload.attachments = attachments;
+        }
         const r = await fetch(`${API}/messages/chat`, {
-            method: "POST", headers: {"Content-Type": "application/json"},
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
         });
         if (!r.ok) {
@@ -1259,14 +1330,16 @@
         return j.data.attachment;
     }
 
-    /** --------------- Agent 快捷键渲染 --------------- */
+    /** ---------------- Agent 快捷键 ---------------- */
     function handleShortcutClick(shortcut) {
         const el = $("#input");
         if (!el) return;
-        const tpl = (shortcut.prompt_template && String(shortcut.prompt_template).trim())
-            ? String(shortcut.prompt_template).trim()
-            : (shortcut.title || "");
+
+        const tpl =
+            (shortcut.prompt_template && String(shortcut.prompt_template).trim()) ||
+            (shortcut.title || "");
         if (!tpl) return;
+
         el.textContent = tpl;
         shortcutsHidden = true;
         const bar = $("#shortcut-bar");
@@ -1276,36 +1349,44 @@
     function renderShortcutsForAgent(agentKey) {
         const bar = $("#shortcut-bar");
         if (!bar) return;
+
         bar.innerHTML = "";
+
         if (!agentKey || shortcutsHidden) {
             bar.style.display = "none";
             return;
         }
+
         const agent = agentsMap[agentKey];
-        const list = agent && Array.isArray(agent.task_shortcuts) ? agent.task_shortcuts : [];
+        const list =
+            agent && Array.isArray(agent.task_shortcuts) ? agent.task_shortcuts : [];
         if (!list.length) {
             bar.style.display = "none";
             return;
         }
+
         bar.style.display = "flex";
-        list.forEach(sc => {
+        list.forEach((sc) => {
             const pill = ce("button", "shortcut-pill");
             pill.type = "button";
             pill.dataset.id = sc.id || "";
+
             const t = ce("div", "shortcut-pill-title");
             t.textContent = sc.title || "";
             pill.appendChild(t);
+
             if (sc.subtitle) {
                 const sub = ce("div", "shortcut-pill-sub");
                 sub.textContent = sc.subtitle;
                 pill.appendChild(sub);
             }
+
             pill.onclick = () => handleShortcutClick(sc);
             bar.appendChild(pill);
         });
     }
 
-    /** --------------- Agent 渲染与切换 --------------- */
+    /** ---------------- Agent 渲染与切换 ---------------- */
     function renderAgents() {
         const box = $("#agent-list");
         box.innerHTML = "";
@@ -1317,16 +1398,22 @@
             box.appendChild(text);
             return;
         }
-        agents.forEach(a => {
+
+        agents.forEach((a) => {
             const item = ce("div", "agent-item");
             item.dataset.key = a.key;
+
             const name = ce("span", "agent-name");
             name.textContent = a.name || a.key;
+
             const desc = ce("span", "agent-desc");
             desc.textContent = a.description || "";
+
             item.appendChild(name);
             item.appendChild(desc);
+
             if (a.key === currentAgentKey) item.classList.add("active");
+
             item.onclick = async () => {
                 if (a.key === currentAgentKey && !pendingNew) return;
                 const needConfirm = hasUserOrAssistant() && !pendingNew;
@@ -1334,12 +1421,14 @@
                     const ok = await uiConfirm("切换助手将新建一个会话, 是否继续?");
                     if (!ok) return;
                 }
+
                 currentAgentKey = a.key;
                 pendingNew = true;
                 currentSessionId = null;
                 shortcutsHidden = false;
                 pendingAttachments = [];
                 renderImagePreview();
+
                 $("#chat-messages").innerHTML = "";
                 renderAgentsActive();
                 updateAgentCurrentLabel();
@@ -1347,22 +1436,30 @@
                 renderSessionsActive();
                 updateUploadButtonVisibility();
             };
+
             box.appendChild(item);
         });
     }
 
     function renderAgentsActive() {
-        document.querySelectorAll(".agent-item").forEach(el => {
+        document.querySelectorAll(".agent-item").forEach((el) => {
             const key = el.dataset.key;
-            if (key === currentAgentKey) el.classList.add("active"); else el.classList.remove("active");
+            if (key === currentAgentKey) el.classList.add("active");
+            else el.classList.remove("active");
         });
     }
 
-    /** --------------- 会话列表 --------------- */
+    /** ---------------- 会话列表 ---------------- */
     async function reloadSessions() {
         sessions = await apiListSessions();
+
         const getTs = (s) => {
-            const v = s.updated_at ?? s.created_at ?? s.update_time ?? s.create_time ?? 0;
+            const v =
+                s.updated_at ??
+                s.created_at ??
+                s.update_time ??
+                s.create_time ??
+                0;
             if (typeof v === "number") return v;
             const n = Number(v);
             if (!Number.isNaN(n)) return n;
@@ -1373,10 +1470,15 @@
 
         const box = $("#session-list");
         box.innerHTML = "";
-        $("#btn-clear-all").style.display = sessions.length ? "inline-block" : "none";
+        $("#btn-clear-all").style.display = sessions.length
+            ? "inline-block"
+            : "none";
 
-        sessions.forEach(s => {
-            const item = ce("div", "session-item" + (s.session_id === currentSessionId ? " active" : ""));
+        sessions.forEach((s) => {
+            const item = ce(
+                "div",
+                "session-item" + (s.session_id === currentSessionId ? " active" : "")
+            );
             const main = ce("div", "session-main");
             const title = ce("div", "session-title");
             const meta = ce("div", "session-meta");
@@ -1400,7 +1502,7 @@
             del.textContent = "×";
             del.onclick = async (ev) => {
                 ev.stopPropagation();
-                if (!await uiConfirm("确认删除该会话？")) return;
+                if (!(await uiConfirm("确认删除该会话？"))) return;
                 await apiDeleteSession(s.session_id);
                 if (currentSessionId === s.session_id) {
                     currentSessionId = null;
@@ -1420,21 +1522,27 @@
                 pendingNew = false;
                 currentSessionId = s.session_id;
                 currentBotName = s.bot_name;
+
                 const sel = document.getElementById("model-select");
                 if (sel && s.bot_name) sel.value = s.bot_name;
+
                 document.getElementById("ck-rag").checked = !!s.rag_enabled;
                 document.getElementById("ck-stream").checked = !!s.stream_enabled;
+
                 if (s.agent_key) {
                     currentAgentKey = s.agent_key;
                     renderAgentsActive();
                     updateAgentCurrentLabel();
                 }
+
                 document.getElementById("chat-messages").innerHTML = "";
                 pendingAttachments = [];
                 renderImagePreview();
                 await loadHistory(currentSessionId);
+
                 shortcutsHidden = hasUserOrAssistant();
                 renderShortcutsForAgent(currentAgentKey);
+
                 renderSessionsActive();
                 updateUploadButtonVisibility();
             };
@@ -1445,9 +1553,11 @@
     }
 
     function renderSessionsActive() {
-        document.querySelectorAll(".session-item").forEach(n => n.classList.remove("active"));
+        document.querySelectorAll(".session-item").forEach((n) =>
+            n.classList.remove("active")
+        );
         if (!pendingNew && currentSessionId) {
-            const match = sessions.find(s => s.session_id === currentSessionId);
+            const match = sessions.find((s) => s.session_id === currentSessionId);
             if (match) {
                 const idx = sessions.indexOf(match);
                 const el = $("#session-list").children[idx];
@@ -1456,14 +1566,15 @@
         }
     }
 
-    /** --------------- 历史渲染 --------------- */
+    /** ---------------- 历史渲染 ---------------- */
     async function loadHistory(sessionId) {
         setStatus("加载历史…");
         const panel = $("#chat-messages");
         panel.innerHTML = "";
         const hist = await apiHistory(sessionId);
-        (hist || []).forEach(m => {
-            const role = (typeof m.role === "string") ? m.role.toLowerCase() : "system";
+        (hist || []).forEach((m) => {
+            const role =
+                typeof m.role === "string" ? m.role.toLowerCase() : "system";
             const attachments = Array.isArray(m.attachments) ? m.attachments : [];
             if (role === "system") {
                 panel.appendChild(msgBubble("system", m.content || "", []));
@@ -1476,16 +1587,15 @@
                 }
             }
         });
-        hljs.highlightAll();
         scrollBottom();
         setStatus("就绪");
     }
 
-    /** --------------- 模型选择 --------------- */
+    /** ---------------- 模型选择 ---------------- */
     function renderModels() {
         const sel = $("#model-select");
         sel.innerHTML = "";
-        models.forEach(m => {
+        models.forEach((m) => {
             const opt = ce("option");
             opt.value = m.bot_name;
             opt.textContent = `${m.bot_name}（${m.family}）`;
@@ -1520,23 +1630,27 @@
         updateUploadButtonVisibility();
     }
 
-    /** --------------- 系统提示（仅UI，不持久化） --------------- */
+    /** ---------------- 系统提示（仅UI，不持久化） ---------------- */
     async function insertSystemTip(text) {
         $("#chat-messages").appendChild(msgBubble("system", text, []));
-        hljs.highlightAll();
         scrollBottom();
     }
 
-    /** --------------- 发送消息 --------------- */
+    /** ---------------- 发送消息 ---------------- */
     async function ensureSessionIfNeeded() {
         if (!pendingNew) return currentSessionId;
-        const model = pendingBotName || document.getElementById("model-select").value || models[0]?.bot_name;
+        const model =
+            pendingBotName ||
+            document.getElementById("model-select").value ||
+            models[0]?.bot_name;
         const sid = await apiCreateSession(model);
         pendingNew = false;
         currentSessionId = sid;
         currentBotName = model;
+
         const sel = document.getElementById("model-select");
         if (sel && model) sel.value = model;
+
         await reloadSessions();
         updateUploadButtonVisibility();
         return sid;
@@ -1555,11 +1669,13 @@
 
         const botRow = msgBubble("assistant", "", []);
         const bubble = botRow.querySelector(".bubble");
-        const mdDiv = bubble.querySelector(".chat-markdown") || (() => {
-            const d = ce("div", "chat-markdown");
-            bubble.appendChild(d);
-            return d;
-        })();
+        const mdDiv =
+            bubble.querySelector(".chat-markdown") ||
+            (() => {
+                const d = ce("div", "chat-markdown");
+                bubble.appendChild(d);
+                return d;
+            })();
         $("#chat-messages").appendChild(botRow);
         scrollBottom();
 
@@ -1574,56 +1690,87 @@
         try {
             if (useStream) {
                 let full = "";
-                await apiSendMessageStream(sessionId, "user", text, useRag, attachmentsToSend, (chunk) => {
-                    const marker = "[[RAG_SOURCES]]";
-                    if (chunk.includes(marker)) {
-                        const idx = chunk.indexOf(marker);
-                        const before = chunk.slice(0, idx);
-                        if (before) {
-                            full += before;
-                            mdDiv.innerHTML = renderMarkdown(full);
-                            scrollBottom();
+                await apiSendMessageStream(
+                    sessionId,
+                    "user",
+                    text,
+                    useRag,
+                    attachmentsToSend,
+                    (chunk) => {
+                        const marker = "[[RAG_SOURCES]]";
+                        if (chunk.includes(marker)) {
+                            const idx = chunk.indexOf(marker);
+                            const before = chunk.slice(0, idx);
+                            if (before) {
+                                full += before;
+                                mdDiv.innerHTML = renderMarkdown(full);
+                                rehighlight(bubble);
+                                scrollBottom();
+                            }
+                            const jsonStr = chunk.slice(idx + marker.length).trim();
+                            try {
+                                const meta = JSON.parse(jsonStr);
+                                const arr = Array.isArray(meta?.sources) ? meta.sources : [];
+                                if (arr.length) renderSources(bubble, arr);
+                            } catch {
+                            }
+                            return;
                         }
-                        const jsonStr = chunk.slice(idx + marker.length).trim();
-                        try {
-                            const meta = JSON.parse(jsonStr);
-                            const arr = Array.isArray(meta?.sources) ? meta.sources : [];
-                            if (arr.length) renderSources(bubble, arr);
-                        } catch {
-                        }
-                        return;
+                        full += chunk;
+                        mdDiv.innerHTML = renderMarkdown(full);
+                        rehighlight(bubble);
+                        scrollBottom();
                     }
-                    full += chunk;
-                    mdDiv.innerHTML = renderMarkdown(full);
-                    scrollBottom();
-                });
-                hljs.highlightAll();
+                );
                 setStatus("就绪");
             } else {
-                const {reply, sources} = await apiSendMessageJSON(sessionId, "user", text, useRag, attachmentsToSend);
+                const {reply, sources, attachments} = await apiSendMessageJSON(
+                    sessionId,
+                    "user",
+                    text,
+                    useRag,
+                    attachmentsToSend
+                );
                 mdDiv.innerHTML = renderMarkdown(reply || "");
+                rehighlight(bubble);
+
+                const respAtts = Array.isArray(attachments) ? attachments : [];
+                if (respAtts.length) {
+                    const imgBox = ce("div", "message-images");
+                    respAtts
+                        .filter((a) => a && a.type === "image")
+                        .forEach((att) => {
+                            const img = document.createElement("img");
+                            img.src = att.url;
+                            img.alt = att.file_name || "image";
+                            img.className = "message-image";
+                            imgBox.appendChild(img);
+                        });
+                    if (imgBox.children.length) {
+                        bubble.appendChild(imgBox);
+                    }
+                }
+
                 if (sources && sources.length) {
                     renderSources(bubble, sources);
                 }
-                hljs.highlightAll();
                 setStatus("就绪");
             }
             await reloadSessions();
         } catch (e) {
-            mdDiv.innerHTML = renderMarkdown(`**错误**：${e.message || e}`);
+            const msg = e?.message || String(e);
+            mdDiv.innerHTML = renderMarkdown(`**错误**：${msg}`);
             setStatus("出错");
         }
     }
 
-    /** --------------- 事件绑定 --------------- */
+    /** ---------------- 事件绑定 ---------------- */
     document.getElementById("send").onclick = send;
 
-    // contenteditable Enter 行为：Enter 发送；Shift+Enter 换行
     const inputBox = document.getElementById("input");
     inputBox.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             if (e.shiftKey) {
-                // 允许换行
                 return;
             } else {
                 e.preventDefault();
@@ -1635,13 +1782,16 @@
     document.getElementById("btn-new").onclick = async () => {
         const ok = await uiConfirm("确认新建会话？当前对话会保留在会话列表中。");
         if (!ok) return;
+
         if (streamingReader) {
             try {
                 await streamingReader.cancel();
-            } catch (e) {
+            } catch {
             }
         }
-        const model = document.getElementById("model-select").value || models[0]?.bot_name;
+
+        const model =
+            document.getElementById("model-select").value || models[0]?.bot_name;
         pendingNew = true;
         pendingBotName = model;
         currentSessionId = null;
@@ -1657,12 +1807,13 @@
     };
 
     document.getElementById("btn-clear-all").onclick = async () => {
-        if (!await uiConfirm("确认清空全部会话？")) return;
+        if (!(await uiConfirm("确认清空全部会话？"))) return;
         await apiDeleteAll();
         sessions = [];
         currentSessionId = null;
         pendingNew = true;
-        pendingBotName = document.getElementById("model-select").value || models[0]?.bot_name;
+        pendingBotName =
+            document.getElementById("model-select").value || models[0]?.bot_name;
         document.getElementById("session-list").innerHTML = "";
         document.getElementById("chat-messages").innerHTML = "";
         pendingAttachments = [];
@@ -1672,23 +1823,33 @@
         renderSessionsActive();
     };
 
-    document.getElementById("ck-rag").addEventListener('change', async function () {
-        const v = this.checked;
-        insertSystemTip(v ? '已开启RAG' : '已关闭RAG');
-        if (!pendingNew && currentSessionId) {
-            const streamNow = document.getElementById("ck-stream").checked;
-            apiUpdateFlags(currentSessionId, {rag_enabled: v, stream_enabled: streamNow});
-        }
-    });
+    document
+        .getElementById("ck-rag")
+        .addEventListener("change", async function () {
+            const v = this.checked;
+            insertSystemTip(v ? "已开启RAG" : "已关闭RAG");
+            if (!pendingNew && currentSessionId) {
+                const streamNow = document.getElementById("ck-stream").checked;
+                apiUpdateFlags(currentSessionId, {
+                    rag_enabled: v,
+                    stream_enabled: streamNow
+                });
+            }
+        });
 
-    document.getElementById("ck-stream").addEventListener('change', async function () {
-        const v = this.checked;
-        insertSystemTip(v ? '已开启流式输出' : '已关闭流式输出');
-        if (!pendingNew && currentSessionId) {
-            const ragNow = document.getElementById("ck-rag").checked;
-            apiUpdateFlags(currentSessionId, {rag_enabled: ragNow, stream_enabled: v});
-        }
-    });
+    document
+        .getElementById("ck-stream")
+        .addEventListener("change", async function () {
+            const v = this.checked;
+            insertSystemTip(v ? "已开启流式输出" : "已关闭流式输出");
+            if (!pendingNew && currentSessionId) {
+                const ragNow = document.getElementById("ck-rag").checked;
+                apiUpdateFlags(currentSessionId, {
+                    rag_enabled: ragNow,
+                    stream_enabled: v
+                });
+            }
+        });
 
     const fileInput = document.getElementById("file-upload");
     if (fileInput) {
@@ -1716,16 +1877,17 @@
         });
     }
 
-    /** --------------- 初始化 --------------- */
+    /** ---------------- 初始化 ---------------- */
     (async function init() {
         try {
             try {
                 agents = await apiListAgents();
                 agentsMap = {};
-                agents.forEach(a => {
+                agents.forEach((a) => {
                     agentsMap[a.key] = a;
                 });
-                const defaultAgent = agents.find(a => a.key === "default_chat") || agents[0];
+                const defaultAgent =
+                    agents.find((a) => a.key === "default_chat") || agents[0];
                 if (defaultAgent) {
                     currentAgentKey = defaultAgent.key;
                 }
@@ -1743,12 +1905,20 @@
         renderModels();
 
         pendingNew = true;
-        pendingBotName = document.getElementById("model-select").value || models[0]?.bot_name || "gpt-3.5-turbo";
-        insertSystemTip(`已进入新会话（助手：${getAgentNameByKey(currentAgentKey) || "默认"}，模型：${pendingBotName}）`);
+        pendingBotName =
+            document.getElementById("model-select").value ||
+            models[0]?.bot_name ||
+            "gpt-3.5-turbo";
+        insertSystemTip(
+            `已进入新会话（助手：${
+                getAgentNameByKey(currentAgentKey) || "默认"
+            }，模型：${pendingBotName}）`
+        );
 
         await reloadSessions();
         updateUploadButtonVisibility();
     })();
 </script>
+
 </body>
 </html>

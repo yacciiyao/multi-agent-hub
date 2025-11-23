@@ -30,7 +30,7 @@ class SearchRagRequest(BaseModel):
     top_k: int = Field(default=5, ge=1, le=20)
 
 
-router = APIRouter(prefix="/rag", tags=["messages"])
+router = APIRouter(prefix="/rag", tags=["rag"])
 
 
 @router.post("/upload_url", summary="从 URL 导入（后台）")
