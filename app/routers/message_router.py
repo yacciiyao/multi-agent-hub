@@ -29,7 +29,7 @@ class AttachmentDTO(BaseModel):
         return Attachment(
             id=self.id,
             type=self.type,
-            url="https://images-na.ssl-images-amazon.com/images/I/615KnbjRmTL._AC_UL225_SR225,160_.jpg",
+            url=self.url,
             mime_type=self.mime_type,
             file_name=self.file_name,
             size_bytes=self.size_bytes,

@@ -45,7 +45,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/dist/highlight.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
 
-
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
     <title>Multi-Agent Hub</title>
@@ -445,10 +444,9 @@
             max-width: 760px;
             border: 1px solid var(--border);
             background: #fff;
-            padding: 10px 12px;
+            padding: 0 8px !important;
             word-break: break-word;
             white-space: normal;
-            padding: 0px 8px !important;
             line-height: 1.35 !important;
             font-size: 13px;
             border-radius: 8px;
@@ -580,16 +578,25 @@
 
         .textbox {
             outline: none;
-            min-height: var(--textbox-min-h);
-            max-height: var(--textbox-max-h);
+            min-height: 60px;
+            max-height: 180px;
             overflow-y: auto;
             padding: 0;
             white-space: pre-wrap;
             word-break: break-word;
+            display: block;
+            width: 100%;
+            font: inherit;
+            color: inherit;
+            background: transparent;
+            border: none;
         }
 
-        .textbox:empty:before {
-            content: attr(data-placeholder);
+        textarea.textbox {
+            resize: none;
+        }
+
+        .textbox::placeholder {
             color: var(--muted);
         }
 
@@ -730,6 +737,79 @@
             justify-content: flex-end;
             border-top: 1px solid var(--border)
         }
+
+        .sources {
+            margin-top: 8px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px dashed var(--border);
+            font-size: 12px;
+        }
+
+        .sources-hd {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .sources-toggle {
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .sources-count {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .sources-body {
+            margin-top: 4px;
+        }
+
+        .source-item {
+            margin: 4px 0;
+        }
+
+        .source-item .score {
+            margin-left: 4px;
+            color: var(--muted);
+        }
+
+        .source-item .muted {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .image-viewer {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .image-viewer img {
+            max-width: 80vw;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .image-viewer-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -812,10 +892,10 @@
                 <div id="image-preview" class="image-preview"></div>
 
                 <div class="input-shell">
-                    <div id="input"
-                         class="textbox"
-                         contenteditable="true"
-                         data-placeholder="输入消息，Shift+Enter 换行，Enter 发送"></div>
+                    <!-- 这里是 textarea 输入框，只显示纯文本，不做 MD 渲染 -->
+                    <textarea id="input"
+                              class="textbox"
+                              placeholder="输入消息，Shift+Enter 换行，Enter 发送"></textarea>
 
                     <div class="inbox-actions">
                         <div class="left">
@@ -899,12 +979,12 @@
     function getInputText() {
         const el = $("#input");
         if (!el) return "";
-        return (el.innerText || "").replace(/\u00A0/g, " ").trim();
+        return (el.value || "").trim();
     }
 
     function clearInput() {
         const el = $("#input");
-        if (el) el.innerHTML = "";
+        if (el) el.value = "";
     }
 
     function setStatus(t) {
@@ -1195,6 +1275,7 @@
             `${API}/sessions/delete?user_id=${USER_ID}&session_id=${encodeURIComponent(
                 session_id
             )}`,
+
             {method: "POST"}
         );
         const j = await r.json();
@@ -1340,7 +1421,9 @@
             (shortcut.title || "");
         if (!tpl) return;
 
-        el.textContent = tpl;
+        el.value = tpl;
+        el.focus();
+
         shortcutsHidden = true;
         const bar = $("#shortcut-bar");
         if (bar) bar.style.display = "none";

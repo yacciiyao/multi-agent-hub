@@ -3,27 +3,22 @@
   "openai_base_url": "",
   "openai_default_model": "",
   "openai_max_token": 512,
-
   "qwen_api_key": "",
   "qwen_base_url": "",
   "qwen_default_model": "qwen3-32b",
   "qwen_max_token": 512,
-
   "deepseek_api_key": "",
   "deepseek_base_url": "",
   "deepseek_default_model": "",
   "deepseek_max_token": 512,
-
   "claude_api_key": "",
   "claude_base_url": "",
   "claude_default_model": "",
   "claude_max_token": 512,
-
   "gemini_api_key": "",
   "gemini_base_url": "",
   "gemini_default_model": "",
   "gemini_max_token": 512,
-
   "storage": "mysql",
   "database": {
     "host": "",
@@ -35,7 +30,6 @@
   "max_sessions": 10,
   "max_messages_count": 10,
   "max_messages_length": 1000,
-
   "embedding": {
     "provider": "",
     "model": "",
@@ -43,17 +37,14 @@
     "batch_size": 64,
     "version": 1
   },
-
   "rag": {
     "enabled": true,
     "backend": "milvus",
     "top_k": 5,
-
     "faiss": {
-      "index_dir": "data/vector_store/faiss",
+      "index_dir": "",
       "top_k_raw": 20
     },
-
     "milvus": {
       "mode": "",
       "collection": "",
@@ -63,5 +54,13 @@
       "host": "127.0.0.1",
       "port": 19530
     }
-  }
+  },
+  "agents": {
+    "enabled": true,
+    "brand_enabled": false,
+    "project_enabled": false
+  },
+  "upload_dir": "",
+  "max_upload_times": 10,
+  "file_storage": ""
 }
