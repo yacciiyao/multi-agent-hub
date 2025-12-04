@@ -8,7 +8,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Query, Path, Form, UploadFile, File
 from pydantic import BaseModel, Field
 
-from core.rag_service import RagService
+from core.services.rag import RagService
 from infrastructure.response import success, failure
 
 

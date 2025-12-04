@@ -8,7 +8,7 @@ from typing import Dict, Any
 from fastapi import APIRouter, Form, File, UploadFile, HTTPException
 from starlette import status
 
-from core.file_service import FileService
+from core.services.file import FileService
 from infrastructure.mlogger import mlogger
 
 router = APIRouter(prefix="/files", tags=["files"])

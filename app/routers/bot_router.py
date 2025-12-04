@@ -5,7 +5,7 @@
 # @Description: 模型展示
 from fastapi import APIRouter
 
-from bots.bot_registry import BotRegistry
+from infrastructure.llm.registry import BotRegistry
 from infrastructure.response import success
 
 router = APIRouter(prefix="/bots", tags=["messages"])

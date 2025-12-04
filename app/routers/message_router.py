@@ -9,8 +9,8 @@ from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 from starlette.responses import StreamingResponse
 
-from core.message_service import MessageService
-from core.session_service import SessionService
+from core.services.message import MessageService
+from core.services.session import SessionService
 from domain.enums import Role, Channel, AttachmentType
 from domain.message import Message, Attachment
 from infrastructure.response import failure, success

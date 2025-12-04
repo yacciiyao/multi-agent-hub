@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
-from core.agent_service import AgentService
+from core.engine.services import AgentService
 from infrastructure.response import success, failure
 
 

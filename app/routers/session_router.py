@@ -6,7 +6,7 @@
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
-from core.session_service import SessionService
+from core.services.session import SessionService
 from domain.enums import Channel
 from infrastructure.response import success, failure
 
